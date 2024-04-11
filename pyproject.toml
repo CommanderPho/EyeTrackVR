@@ -1,10 +1,10 @@
 [tool.poetry]
 name = "EyeTrackVR"
-version = "0.2"
+version = "0.2.0"
 description = "Opensource, affordable VR eye tracker for VRChat"
 authors = ["RedHawk989"]
 license = "MIT"
-repository = "https://github.com/EyeTrackVR/EyeTrackVR"
+repository = "https://github.com/CommanderPho/EyeTrackVRR"
 
 [tool.poetry.dependencies]
 python = "~3.11.0"
