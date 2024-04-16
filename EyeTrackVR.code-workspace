@@ -1,0 +1,11 @@
+{
+	"folders": [
+		{
+			"path": "."
+		}
+	],
+	"settings": {
+		"python.terminal.executeInFileDir": true,
+		"python.terminal.focusAfterLaunch": true
+	}
+}

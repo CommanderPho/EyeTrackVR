@@ -46,3 +46,10 @@ pythonpath = "."
 python_files = [
     "test_*.py"
 ]
+
+
+[tool.poetry.scripts]
+install = "poetry: command"   # poetry install is a built-in command, so this script is not needed
+run = "python EyeTrackApp/eyetrackapp.py"
+pyinstaller = "pyinstaller EyeTrackApp/eyetrackapp.spec EyeTrackApp/eyetrackapp.py"
+clean = "python scripts/clean.py" # Python script to handle deletion of files/directories
