@@ -61,7 +61,7 @@ class EyeId(IntEnum):
 video_path = "ezgif.com-gif-maker.avi"
 imshow_enable = False
 calc_print_enable = False
-save_video = False
+save_video = True
 skip_autoradius = False
 skip_blink_detect = False
 

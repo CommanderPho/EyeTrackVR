@@ -50,7 +50,7 @@ else:
 # SHA256 for model version verification
 # daddy230210.onnx = 59e59aa2a21024884200dd3acbd5e6a2e8d7209c46555fbdc727d4fe3adb68d3
 imshow_enable = False
-save_video = False
+save_video = True
 save_filepath = 'output.mp4'
 
 

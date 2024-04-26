@@ -51,9 +51,9 @@ alg_ver = "PallasNekoV3"  # memo: Created by PallasNeko on 230929
 ##############################
 save_logfile = False  # This setting is disabled when imshow_enable or save_img or save_video is true
 imshow_enable = False
-save_video = False
+save_video = True
 
-VideoCapture_SRC = "/Users/prohurtz/Desktop/t3c.mp4"  # "demo2.mp4"
+VideoCapture_SRC = r"M:\ScreenRecordings\EyeTrackerVR_Recordings\t3c.mp4"  # "demo2.mp4"
 input_is_webcam = False
 benchmark_flag = True if not input_is_webcam and not imshow_enable and not save_video else False
 loop_num = 1 if imshow_enable or save_video else 10
