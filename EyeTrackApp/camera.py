@@ -37,7 +37,7 @@ from config import EyeTrackConfig
 from enum import Enum
 import psutil, os
 import sys
-
+from cv2 import VideoWriter, VideoWriter_fourcc
 
 process = psutil.Process(os.getpid())  # set process priority to low
 try:
@@ -102,9 +102,17 @@ class Camera:
 
         self.error_message = f"{Fore.YELLOW}[WARN] Capture source {{}} not found, retrying...{Fore.RESET}"
 
+        # For video saving.
+        # fourcc = VideoWriter_fourcc(*'XVID')  # or use 'MP4V' for .mp4 files
+        self.video_writer = None # VideoWriter('output_video.avi', fourcc, 20.0, (680, 480))  # Assuming a saved video width and height of 680x480
+
     def __del__(self):
         if self.serial_connection is not None:
             self.serial_connection.close()
+        # Release the video writer
+        if self.video_writer is not None:
+            self.video_writer.release()
+            
 
     def set_output_queue(self, camera_output_outgoing: "queue.Queue"):
         self.camera_output_outgoing = camera_output_outgoing
@@ -324,5 +332,50 @@ class Camera:
             print(
                 f"{Fore.YELLOW}[WARN] CAPTURE QUEUE BACKPRESSURE OF {qsize}. CHECK FOR CRASH OR TIMING ISSUES IN ALGORITHM.{Fore.RESET}"
             )
+
+        ## send to algorithms first
         self.camera_output_outgoing.put((image, frame_number, fps))
+        
+        ## write to file second:
+        if self.video_writer is None:
+            # Instantiate the video writer when the first frame is captured
+            frame_height, frame_width = image.shape[:2]
+            fourcc = VideoWriter_fourcc(*'MJPG')  # 'XVID' for avi, 'mp4v' for mp4
+            # fourcc = cv2.VideoWriter_fourcc(*"MJPG")
+            print(f'Making new VideoWriter with:\n\tfps: {fps} ({frame_width} x {frame_height})')
+            # fps = max(fps, 15)
+            self.video_writer = VideoWriter('output_video.avi', fourcc, 15, (frame_width, frame_height)) # , isColor=False
+
+        # Write video frame to file
+        # if self.video_writer is not None:
+        # image = cv2.flip(image, 0)
+
+        # write the flipped frame
+        self.video_writer.write(image.astype('uint8'))
+
+        cv2.imshow('frame', image)
+        # if cv2.waitKey(1) & 0xFF == ord('q'):
+        #     break
+        # else:
+            
+                    
+        # # Check if the video capture has been initialized correctly.
+        # if not self.video_writer.isOpened():
+        #     print("Error: Could not open video.")
+        # else:
+        #     # Read a frame.
+        #     ret, frame = self.video_writer.read()
+            
+        #     # Check if the frame is read correctly.
+        #     if ret:
+        #         # Specify the filename and path.
+        #         image_filename = "frame.png"
+                
+        #         # Write the frame to disk as an image file.
+        #         cv2.imwrite(image_filename, frame)
+        #         print(f"The frame has been saved as {image_filename}.")
+        #     else:
+        #         print("Error: Could not read the frame.")
+
+
         self.capture_event.clear()
