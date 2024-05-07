@@ -118,6 +118,33 @@
 		"cinttypes": "cpp",
 		"typeinfo": "cpp",
 		"iostream": "cpp"
+		},
+		"actionButtons": {
+			"commands": [
+			{
+                "cwd": "${workspaceFolder}/EyeTrackApp/", /* Terminal initial folder */
+                "name": "Run EyeTrackApp",
+                "color": "#33FF33",
+                "singleInstance": true,
+                "command": "poetry run python eyetrackapp.py", /* This is executed in the terminal */
+				"terminalName": "EyeTrackApp Terminal",
+				"tooltip": "Launch the eyetrackapp GUI",
+            },
+            // {
+			// 	"cwd": "${workspaceFolder}/EyeTrackApp/",
+            //     "name": "Build pyinstaller",
+            //     "color": "green",
+            //     "command": "python -m pyinstaller eyetrackapp.spec --noconfirm",
+            // },
+			],
+			"defaultColor": "white",
+			"reloadButton": "↻",
+			"loadNpmCommands": true
 		}
-  }
+},
+"extensions": {
+	"recommendations": [
+		"jkearins.action-buttons-ext"
+	]
+}
 }
