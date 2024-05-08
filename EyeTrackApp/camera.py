@@ -353,7 +353,7 @@ class Camera:
         # write the flipped frame
         self.video_writer.write(image.astype('uint8'))
 
-        cv2.imshow('frame', image)
+        # cv2.imshow('frame', image)
         # if cv2.waitKey(1) & 0xFF == ord('q'):
         #     break
         # else:
