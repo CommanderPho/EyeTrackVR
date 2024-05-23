@@ -3,21 +3,21 @@
 		{
 			"path": "."
 		},
-		{
-			"path": "../OpenIris"
-		},
-		{
-		"name": "ESP Source Code",
-		"path": "C:/Users/pho/repos/ExternalTesting/OpenIris/ESP"
-		},
-		{
-		"name": "OpenIris Repo Root",
-		"path": "C:/Users/pho/repos/ExternalTesting/OpenIris"
-		},
-		{
-		"name": "ESP",
-		"path": "C:/Users/pho/repos/ExternalTesting/OpenIris/ESP"
-		}
+		// {
+		// 	"path": "../OpenIris"
+		// },
+		// {
+		// "name": "ESP Source Code",
+		// "path": "C:/Users/pho/repos/ExternalTesting/OpenIris/ESP"
+		// },
+		// {
+		// "name": "OpenIris Repo Root",
+		// "path": "C:/Users/pho/repos/ExternalTesting/OpenIris"
+		// },
+		// {
+		// "name": "ESP",
+		// "path": "C:/Users/pho/repos/ExternalTesting/OpenIris/ESP"
+		// }
 
 	],
 	"settings": {
