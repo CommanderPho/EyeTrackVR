@@ -119,6 +119,31 @@
 		"typeinfo": "cpp",
 		"iostream": "cpp"
 		},
+		"workbench.colorCustomizations": {
+			"editor.lineHighlightBackground": "#1073cf2d",
+			"editor.lineHighlightBorder": "#9fced11f",
+			"activityBar.background": "#990ae6",
+			"titleBar.activeBackground": "#8519c0",
+			"titleBar.activeForeground": "#FCFBFD",
+			"scrollbarSlider.background": "#fffb0057", // Add a brighter and more visually distinct scrollbar to keep track of where I am in the file
+			"scrollbarSlider.hoverBackground": "#fffb0082",
+			"scrollbarSlider.activeBackground": "#ccff00df", // When clicked on, the slider should be even brighter
+			"activityBar.inactiveForeground": "#ffffff3c", // Drastically improves the ability to notice the currently selected item, if any.
+			"activityBar.foreground": "#ffffff",
+			"notebook.outputContainerBackgroundColor": "#395a3e50", //"#a5c2aa50"
+			"notebook.outputContainerBorderColor": "#10ff10",
+			"notebook.focusedCellBorder": "#ffff00da",
+			"notebook.focusedEditorBorder": "#f6ff00",
+			// "notebook.focusedCellBackground": "#ff0000",
+			"notebook.inactiveFocusedCellBorder": "#ffff0063",
+			// "editorBracketPairGuide.activeBackground1": "#ff0000",
+			// "bracketPairColorizer.consecutivePairColors": [
+			// 		["(", ")", ["Gold", "DarkGoldenRod", "Chocolate", "SaddleBrown", "DarkKhaki", "GoldenRod", "Peru"]],
+			// 		["[", "]", ["LightSkyBlue", "DodgerBlue", "RoyalBlue", "MediumBlue", "Blue", "DarkBlue", "Navy"]],
+			// 		["{", "}", ["Orchid", "MediumOrchid", "DarkOrchid", "Purple", "Indigo", "BlueViolet", "DarkViolet"]],
+			// 		"Red"
+			// 	]
+		},
 		"actionButtons": {
 			"commands": [
 			{
@@ -145,6 +170,12 @@
 "extensions": {
 	"recommendations": [
 		"jkearins.action-buttons-ext"
+	]
+},
+"launch": {
+	"version": "0.2.0",
+	"configurations": [
+	//  & 'K:\FastSwap\Environments\pypoetry\pypoetry\Cache\virtualenvs\eyetrackvr-IEmwn9lV-py3.11\Scripts\python.exe' 'c:\Users\pho\.vscode\extensions\ms-python.python-2023.22.0\pythonFiles\lib\python\debugpy\adapter/../..\debugpy\launcher' '4609' '--' 'c:\Users\pho\repos\ExternalTesting\EyeTrackVR\EyeTrackApp\eyetrackapp.py' 
 	]
 }
 }

@@ -137,7 +137,7 @@ class LEAP_C(object):
         self.y = 0
         self.maxlist = []
 
-        self.ort_session1 = onnxruntime.InferenceSession(self.model_path, opts, providers=["CPUExecutionProvider"])
+        self.ort_session1 = onnxruntime.InferenceSession(self.model_path, opts, providers=["CPUExecutionProvider"]) # EyeTrackApp\Models\leap123023.onnx. Loo
 
         threads = []
         for i in range(self.num_threads):

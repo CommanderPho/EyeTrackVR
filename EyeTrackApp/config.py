@@ -122,6 +122,12 @@ class EyeTrackSettingsConfig(BaseModel):
     gui_osc_vrcft_v2: bool = False
     gui_vrc_native: bool = True
     gui_pupil_dilation: bool = True
+    
+    gui_should_save_video: bool = True
+    gui_should_save_video_right: bool = True
+    gui_video_save_path: str = 'left_video.mp4'
+    gui_video_save_path_right: str = 'right_video.mp4'
+    
 
 
 class EyeTrackConfig(BaseModel):

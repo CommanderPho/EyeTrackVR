@@ -31,7 +31,7 @@ from settings.BaseSettings import BaseSettingsWidget
 from settings.modules.GeneralSettingsModule import GeneralSettingsModule
 from settings.modules.OneEuroSettingsModule import OneEuroSettingsModule
 from settings.modules.OSCSettingsModule import OSCSettingsModule
-
+from settings.modules.OutputsSettingsModule import OutputsSettingsModule
 
 class SettingsWidget(BaseSettingsWidget):
     def __init__(self, widget_id: EyeId, main_config: EyeTrackConfig):
@@ -39,6 +39,7 @@ class SettingsWidget(BaseSettingsWidget):
             GeneralSettingsModule,
             OneEuroSettingsModule,
             OSCSettingsModule,
+            OutputsSettingsModule,
         ]
         super().__init__(widget_id, main_config, settings_modules)
 
