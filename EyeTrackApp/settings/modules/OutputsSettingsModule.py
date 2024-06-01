@@ -63,7 +63,7 @@ class OutputsSettingsModule(BaseSettingsModule):
                 sg.InputText(
                     self.config.gui_video_save_path,
                     key=self.gui_video_save_path,
-                    size=(0, 10),
+                    size=(20, 10),
                     tooltip="Path to save video frames to for the Right eye.",
                 ),
             ],
@@ -72,7 +72,7 @@ class OutputsSettingsModule(BaseSettingsModule):
                 sg.InputText(
                     self.config.gui_video_save_path_right,
                     key=self.gui_video_save_path_right,
-                    size=(0, 10),
+                    size=(40, 10),
                     tooltip="Path to save video frames to for the Left eye.",
                 ),
             ],

@@ -123,8 +123,8 @@ class EyeTrackSettingsConfig(BaseModel):
     gui_vrc_native: bool = True
     gui_pupil_dilation: bool = True
     
-    gui_should_save_video: bool = True
-    gui_should_save_video_right: bool = True
+    gui_should_save_video: bool = False
+    gui_should_save_video_right: bool = False
     gui_video_save_path: str = 'left_video.mp4'
     gui_video_save_path_right: str = 'right_video.mp4'
     

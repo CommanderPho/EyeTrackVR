@@ -338,6 +338,9 @@ class Camera:
         
         ## write to file second:
         if self.video_writer is None:
+            ## The video writer should be able to read the `self.camera_output_outgoing` queue just the like algorithms do
+
+
             # Instantiate the video writer when the first frame is captured
             frame_height, frame_width = image.shape[:2]
             fourcc = VideoWriter_fourcc(*'MJPG')  # 'XVID' for avi, 'mp4v' for mp4
