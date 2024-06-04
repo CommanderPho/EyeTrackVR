@@ -340,17 +340,20 @@ class Camera:
         ## write to file second:
         if self.video_writer is None:
             ## The video writer should be able to read the `self.camera_output_outgoing` queue just the like algorithms do
-            print(f'self.video_writer is None. Setting up VideoWritter:\n\tself.camera_address: {self.camera_address}, self.camera_index: {self.camera_index}')
+            print(f'self.video_writer is None. Setting up VideoWriter:\n\tself.camera_address: {self.camera_address}, self.camera_index: {self.camera_index}')
             # self.camera_address
             # self.camera_index
 
-            ## Left
-            gui_should_save_video = self.config.settings.gui_should_save_video
-            gui_video_save_path = self.config.settings.gui_video_save_path
+            # ## Left
+            # gui_should_save_video = self.config.settings.gui_should_save_video
+            # gui_video_save_path = self.config.settings.gui_video_save_path
             
-            ## Right:
-            gui_should_save_video = self.config.settings.gui_should_save_video_right
-            gui_video_save_path = self.config.settings.gui_video_save_path_right
+            # ## Right:
+            # gui_should_save_video = self.config.settings.gui_should_save_video_right
+            # gui_video_save_path = self.config.settings.gui_video_save_path_right
+
+            gui_should_save_video: bool = True
+            gui_video_save_path: str = f'output_video_{str(self.camera_index)}.avi'
 
             print(f'\tgui_should_save_video: {gui_should_save_video}, gui_video_save_path: "{gui_video_save_path}"')
             # gui_should_save_video
