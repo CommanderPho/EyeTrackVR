@@ -38,7 +38,8 @@ from config import EyeTrackConfig
 from enum import Enum
 import psutil, os
 import sys
-from cv2 import VideoWriter, VideoWriter_fourcc
+# from cv2 import VideoWriter, VideoWriter_fourcc
+import imageio
 
 process = psutil.Process(os.getpid())  # set process priority to low
 try:
@@ -107,13 +108,23 @@ class Camera:
         # fourcc = VideoWriter_fourcc(*'XVID')  # or use 'MP4V' for .mp4 files
         self.video_writer = None # VideoWriter('output_video.avi', fourcc, 20.0, (680, 480))  # Assuming a saved video width and height of 680x480
 
+        # Initialize video writer
+        self.video_writer = imageio.get_writer('output.mp4', fps=30)
+        
+
     def __del__(self):
         if self.serial_connection is not None:
-            self.serial_connection.close()
-        # Release the video writer
-        if self.video_writer is not None:
-            self.video_writer.release()
+            self.serial_connection.close()            
+        self.close()
             
+    def close(self):
+        # Close video writer
+        if self.video_writer is not None:
+            self.video_writer.close()
+        # Release the video writer
+        # if self.video_writer is not None:
+        #     self.video_writer.release()
+
 
     def set_output_queue(self, camera_output_outgoing: "queue.Queue"):
         self.camera_output_outgoing = camera_output_outgoing
@@ -338,6 +349,10 @@ class Camera:
         self.camera_output_outgoing.put((image, frame_number, fps))
         
         ## write to file second:
+        # Write frame to video file
+        self.video_writer.append_data(image)
+        
+
         if self.video_writer is None:
             ## The video writer should be able to read the `self.camera_output_outgoing` queue just the like algorithms do
             print(f'self.video_writer is None. Setting up VideoWriter:\n\tself.camera_address: {self.camera_address}, self.camera_index: {self.camera_index}')
