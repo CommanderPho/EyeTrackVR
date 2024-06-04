@@ -389,6 +389,16 @@ test = ["fsspec[github]", "pytest", "pytest-cov"]
 tifffile = ["tifffile"]
 
 [[package]]
+name = "imutils"
+version = "0.5.4"
+description = "A series of convenience functions to make basic image processing functions such as translation, rotation, resizing, skeletonization, displaying Matplotlib images, sorting contours, detecting edges, and much more easier with OpenCV and both Python 2.7 and Python 3."
+optional = false
+python-versions = "*"
+files = [
+    {file = "imutils-0.5.4.tar.gz", hash = "sha256:03827a9fca8b5c540305c0844a62591cf35a0caec199cb0f2f0a4a0fb15d8f24"},
+]
+
+[[package]]
 name = "iniconfig"
 version = "2.0.0"
 description = "brain-dead simple config-ini parsing"
@@ -1526,4 +1536,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "~3.11.0"
-content-hash = "93ba4db3dd83c353ec1e3ffd3382b4dc19edc9caf01f85f089b808ccae3d4877"
+content-hash = "8550d518213d48c7f1b7d7b02773c443bdefcfd6e9c203d8f25812730d2f406d"

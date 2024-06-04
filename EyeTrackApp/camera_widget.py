@@ -285,7 +285,6 @@ class CameraWidget:
         self.camera_thread.start()
 
     def stop(self):
-
         # If we're not running yet, bail
         if self.cancellation_event.is_set():
             return
@@ -294,6 +293,7 @@ class CameraWidget:
         self.cancellation_event.set()
         self.ransac_thread.join()
         self.camera_thread.join()
+
 
     def render(self, window, event, values):
         if self.image_queue.qsize() > 2:
