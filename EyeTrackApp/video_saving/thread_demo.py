@@ -102,21 +102,20 @@ def threadBothWithSave(source=0):
     """
 
     video_getter = VideoGet(source).start()
-    video_shower = VideoShow(video_getter.frame).start()
+    # video_shower = VideoShow(video_getter.frame).start()
     video_writer = VideoSave(frame=video_getter.frame, save_path='test_video_writer.avi').start()
 
     cps = CountsPerSec().start()
 
     while True:
-        if video_getter.stopped or video_shower.stopped:
-            video_shower.stop()
+        if video_getter.stopped or video_writer.stopped:
             video_getter.stop()
             video_writer.stop()
             break
 
         frame = video_getter.frame
         frame = putIterationsPerSec(frame, cps.countsPerSec())
-        video_shower.frame = frame
+        # video_shower.frame = frame
         # video_writer.frame = frame
         video_writer.update_frame(frame) # Use update_frame to pass the current frame
         cps.increment()
