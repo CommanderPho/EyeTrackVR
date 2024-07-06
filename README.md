@@ -19,9 +19,8 @@ Picture courtesy of Wackalope#6737
 
 Open source and *affordable* VR eye tracker platform for [VRChat](https://hello.vrchat.com/) via `OSC` and `UDP` protocol.
 
-> **Note**: This project is in development and is not fully finished
-
-
+> [!IMPORTANT]\
+> This project is in active development and is not fully finished
 
 ## Documentation
 Please check out our [documentation site.](https://docs.eyetrackvr.dev/)
@@ -38,8 +37,6 @@ IR emitter files are also located there. For more info please reference our [doc
 ## ESP-CAM Firmware
 
 Current work has been with our official firmware by `lorow`, found [here](https://github.com/lorow/OpenIris).
-
-
 
 ## Headset support
 
@@ -63,9 +60,6 @@ Please read our LED safety page for a breakdown of math for out V3 and V4 LED ki
 
 [AN002_Details on photobiological safety of LED light sources](https://docs.eyetrackvr.dev/safety/AN002_Details_on_photobiological_safety_of_LED_light_sources.pdf)
 
-
-
-
 ## Contact
 
 Please join our Discord for updates and any questions.
@@ -74,7 +68,7 @@ Please join our Discord for updates and any questions.
 
 ## Licenses
 
-[![GitHub license](https://img.shields.io/github/license/RedHawk989/EyeTrackVR?style=plastic)](https://github.com/RedHawk989/EyeTrackVR/blob/master/LICENSE)
+***Most software is licensed under GNU GPLv3, with most tracking algorithims under Summer Software Distribution License 1.0. Each file has its license noted in the beginning of the file for clarity.
 
 ***All software is under the [GPLv3 License](https://opensource.org/license/gpl-3-0).
 All documentation, including the [Wiki](https://github.com/RedHawk989/EyeTrackVR/wiki), is under the Creative Commons CC-BY-SA-4.0 license***.
