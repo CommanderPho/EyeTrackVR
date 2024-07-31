@@ -34,6 +34,7 @@ import cv2
 from enums import EyeLR
 from one_euro_filter import OneEuroFilter
 from utils.img_utils import safe_crop
+from utils.misc_utils import resource_user_configs_folder
 from enum import IntEnum
 import os
 
@@ -113,11 +114,11 @@ class EllipseBasedPupilDilation:
     def __init__(self, eye_id):
         # todo: It is necessary to consider whether the filename can be changed in the configuration file, etc.
         if eye_id in [EyeId.LEFT]:
-            self.imgfile = "EBPD_LEFT.png"
+            self.imgfile = resource_user_configs_folder("EBPD_LEFT.png")
         else:
             pass
         if eye_id in [EyeId.RIGHT]:
-            self.imgfile = "EBPD_RIGHT.png"
+            self.imgfile = resource_user_configs_folder("EBPD_RIGHT.png")
         else:
             pass
         # self.data[0, -1] = maxval, [1, -1] = rotation, [2, -1] = x, [3, -1] = y

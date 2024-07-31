@@ -26,6 +26,7 @@ Copyright (c) 2023 EyeTrackVR <3
 LICENSE: GNU GPLv3 
 ------------------------------------------------------------------------------------------------------
 """
+from pathlib import Path
 import numpy as np
 import time
 import os
@@ -33,6 +34,7 @@ import cv2
 from enums import EyeLR
 from one_euro_filter import OneEuroFilter
 from utils.img_utils import safe_crop
+from utils.misc_utils import resource_user_configs_folder
 from enum import IntEnum
 import psutil
 import sys
@@ -129,15 +131,24 @@ def newdata(frameshape):
     return np.zeros(frameshape, dtype=np.uint32)
 
 
+# user_configs_folder = Path(resource_path("../user_configs")).resolve()
+user_configs_folder = resource_user_configs_folder()
+# assert user_configs_folder.exists()
+# print(f'user_configs_folder: {user_configs_folder}')
+
+
 class IntensityBasedOpeness:
     def __init__(self, eye_id):
         # todo: It is necessary to consider whether the filename can be changed in the configuration file, etc.
+        assert user_configs_folder is not None
+        assert user_configs_folder.exists(), f"user_configs_folder: {user_configs_folder}"
+        
         if eye_id in [EyeId.LEFT]:
-            self.imgfile = "IBO_LEFT.png"
+            self.imgfile = user_configs_folder.joinpath("IBO_LEFT.png").resolve()
         else:
             pass
         if eye_id in [EyeId.RIGHT]:
-            self.imgfile = "IBO_RIGHT.png"
+            self.imgfile = user_configs_folder.joinpath("IBO_RIGHT.png").resolve()
         else:
             pass
         # self.imgfile = "IBO_LEFT.png" if eyeside is EyeLR.LEFT else "IBO_RIGHT.png"
