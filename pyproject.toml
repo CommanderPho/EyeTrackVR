@@ -25,10 +25,14 @@ colorama = "^0.4.6"
 taskipy = "^1.10.4"
 pytest = "^8.0.0"
 pytest-cov = "^4.1.0"
+ipykernel = "^6.29.5"
+ipython = "^8.26.0"
+pip = "^24.2"
 [tool.poetry.group.dev.dependencies]
 black = "^22.10.0"
 pyinstaller = "^5.6.2"
 flake8 = "^5.0.4"
+
 
 [tool.taskipy.tasks]
 dev = "python eyetrackapp.py"
