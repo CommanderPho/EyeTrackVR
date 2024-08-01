@@ -62,6 +62,8 @@ ETVR_HEADER = b"\xff\xa0"
 ETVR_HEADER_FRAME = b"\xff\xa1"
 ETVR_HEADER_LEN = 6
 
+ENABLE_VIDEO_SAVING = False
+
 
 class CameraState(Enum):
     CONNECTING = 0
@@ -108,8 +110,9 @@ class Camera:
         # fourcc = VideoWriter_fourcc(*'XVID')  # or use 'MP4V' for .mp4 files
         self.video_writer = None # VideoWriter('output_video.avi', fourcc, 20.0, (680, 480))  # Assuming a saved video width and height of 680x480
 
-        # Initialize video writer
-        self.video_writer = imageio.get_writer('output.mp4', fps=30)
+        if not ENABLE_VIDEO_SAVING:
+            # Initialize video writer
+            self.video_writer = imageio.get_writer('output.mp4', fps=30)
         
 
     def __del__(self):
@@ -118,12 +121,13 @@ class Camera:
         self.close()
             
     def close(self):
-        # Close video writer
-        if self.video_writer is not None:
-            self.video_writer.close()
-        # Release the video writer
-        # if self.video_writer is not None:
-        #     self.video_writer.release()
+        if ENABLE_VIDEO_SAVING:
+            # Close video writer
+            if self.video_writer is not None:
+                self.video_writer.close()
+            # Release the video writer
+            # if self.video_writer is not None:
+            #     self.video_writer.release()
 
 
     def set_output_queue(self, camera_output_outgoing: "queue.Queue"):
@@ -348,75 +352,76 @@ class Camera:
         ## send to algorithms first
         self.camera_output_outgoing.put((image, frame_number, fps))
         
-        ## write to file second:
-        # Write frame to video file
-        self.video_writer.append_data(image)
-        
-
-        if self.video_writer is None:
-            ## The video writer should be able to read the `self.camera_output_outgoing` queue just the like algorithms do
-            print(f'self.video_writer is None. Setting up VideoWriter:\n\tself.camera_address: {self.camera_address}, self.camera_index: {self.camera_index}')
-            # self.camera_address
-            # self.camera_index
-
-            # ## Left
-            # gui_should_save_video = self.config.settings.gui_should_save_video
-            # gui_video_save_path = self.config.settings.gui_video_save_path
+        if ENABLE_VIDEO_SAVING:
+            ## write to file second:
+            # Write frame to video file
+            self.video_writer.append_data(image)
             
-            # ## Right:
-            # gui_should_save_video = self.config.settings.gui_should_save_video_right
-            # gui_video_save_path = self.config.settings.gui_video_save_path_right
 
-            gui_should_save_video: bool = True
-            gui_video_save_path: str = f'output_video_{str(self.camera_index)}.avi'
+            if self.video_writer is None:
+                ## The video writer should be able to read the `self.camera_output_outgoing` queue just the like algorithms do
+                print(f'self.video_writer is None. Setting up VideoWriter:\n\tself.camera_address: {self.camera_address}, self.camera_index: {self.camera_index}')
+                # self.camera_address
+                # self.camera_index
 
-            print(f'\tgui_should_save_video: {gui_should_save_video}, gui_video_save_path: "{gui_video_save_path}"')
-            # gui_should_save_video
-
-            gui_video_save_path = Path(gui_video_save_path).resolve()
-            gui_video_save_path = gui_video_save_path.with_suffix(suffix='.avi')
-            print(f'\tgui_video_save_path: "{gui_video_save_path}"')            
-
-            # gui_video_save_path = 'output_video.avi'
-
-            # Instantiate the video writer when the first frame is captured
-            frame_height, frame_width = image.shape[:2]
-            fourcc = VideoWriter_fourcc(*'MJPG')  # 'XVID' for avi, 'mp4v' for mp4
-            # fourcc = cv2.VideoWriter_fourcc(*"MJPG")
-            print(f'\tMaking new VideoWriter with:\n\tfps: {fps} ({frame_width} x {frame_height})')
-            # fps = max(fps, 15)
-            self.video_writer = VideoWriter(gui_video_save_path, fourcc, 15, (frame_width, frame_height)) # , isColor=False
-
-        # Write video frame to file
-        # if self.video_writer is not None:
-        # image = cv2.flip(image, 0)
-
-        # write the flipped frame
-        self.video_writer.write(image.astype('uint8'))
-
-        # cv2.imshow('frame', image)
-        # if cv2.waitKey(1) & 0xFF == ord('q'):
-        #     break
-        # else:
-            
-                    
-        # # Check if the video capture has been initialized correctly.
-        # if not self.video_writer.isOpened():
-        #     print("Error: Could not open video.")
-        # else:
-        #     # Read a frame.
-        #     ret, frame = self.video_writer.read()
-            
-        #     # Check if the frame is read correctly.
-        #     if ret:
-        #         # Specify the filename and path.
-        #         image_filename = "frame.png"
+                # ## Left
+                # gui_should_save_video = self.config.settings.gui_should_save_video
+                # gui_video_save_path = self.config.settings.gui_video_save_path
                 
-        #         # Write the frame to disk as an image file.
-        #         cv2.imwrite(image_filename, frame)
-        #         print(f"The frame has been saved as {image_filename}.")
-        #     else:
-        #         print("Error: Could not read the frame.")
+                # ## Right:
+                # gui_should_save_video = self.config.settings.gui_should_save_video_right
+                # gui_video_save_path = self.config.settings.gui_video_save_path_right
+
+                gui_should_save_video: bool = True
+                gui_video_save_path: str = f'output_video_{str(self.camera_index)}.avi'
+
+                print(f'\tgui_should_save_video: {gui_should_save_video}, gui_video_save_path: "{gui_video_save_path}"')
+                # gui_should_save_video
+
+                gui_video_save_path = Path(gui_video_save_path).resolve()
+                gui_video_save_path = gui_video_save_path.with_suffix(suffix='.avi')
+                print(f'\tgui_video_save_path: "{gui_video_save_path}"')            
+
+                # gui_video_save_path = 'output_video.avi'
+
+                # Instantiate the video writer when the first frame is captured
+                frame_height, frame_width = image.shape[:2]
+                fourcc = VideoWriter_fourcc(*'MJPG')  # 'XVID' for avi, 'mp4v' for mp4
+                # fourcc = cv2.VideoWriter_fourcc(*"MJPG")
+                print(f'\tMaking new VideoWriter with:\n\tfps: {fps} ({frame_width} x {frame_height})')
+                # fps = max(fps, 15)
+                self.video_writer = VideoWriter(gui_video_save_path, fourcc, 15, (frame_width, frame_height)) # , isColor=False
+
+            # Write video frame to file
+            # if self.video_writer is not None:
+            # image = cv2.flip(image, 0)
+
+            # write the flipped frame
+            self.video_writer.write(image.astype('uint8'))
+
+            # cv2.imshow('frame', image)
+            # if cv2.waitKey(1) & 0xFF == ord('q'):
+            #     break
+            # else:
+                
+                    
+            # # Check if the video capture has been initialized correctly.
+            # if not self.video_writer.isOpened():
+            #     print("Error: Could not open video.")
+            # else:
+            #     # Read a frame.
+            #     ret, frame = self.video_writer.read()
+                
+            #     # Check if the frame is read correctly.
+            #     if ret:
+            #         # Specify the filename and path.
+            #         image_filename = "frame.png"
+                    
+            #         # Write the frame to disk as an image file.
+            #         cv2.imwrite(image_filename, frame)
+            #         print(f"The frame has been saved as {image_filename}.")
+            #     else:
+            #         print("Error: Could not read the frame.")
 
 
         self.capture_event.clear()
