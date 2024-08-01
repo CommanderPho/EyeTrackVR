@@ -38,6 +38,7 @@ from osc import VRChatOSCReceiver, VRChatOSC
 from general_settings_widget import SettingsWidget
 from algo_settings_widget import AlgoSettingsWidget
 from utils.misc_utils import is_nt, resource_path
+from utils.misc_utils import resource_user_configs_folder
 
 if is_nt:
     from winotify import Notification
@@ -324,7 +325,8 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     # parser.add_argument('input_path', help='Path to input data file')
     # parser.add_argument('h5_path', help='Path to output HDF5 file')
-    parser.add_argument('-config_path', '--config-path', default="../user_configs/eyetrack_settings.json", help='Path to the config file')
+    # parser.add_argument('-config_path', '--config-path', default="../user_configs/eyetrack_settings.json", help='Path to the config file')
+    parser.add_argument('-config_path', '--config-path', default=resource_user_configs_folder("eyetrack_settings.json").as_posix(), help='Path to the config file')
     # parser.add_argument('-c', '--config-path', default="user_configs/eyetrack_settings.json", help='Name of the group in which to save the scans in the output file')
 
     # mode_group = parser.add_mutually_exclusive_group()
