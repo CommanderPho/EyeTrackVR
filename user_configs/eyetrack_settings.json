@@ -36,7 +36,7 @@
         "gui_flip_x_axis_left": false,
         "gui_flip_x_axis_right": false,
         "gui_flip_y_axis": false,
-        "gui_RANSAC3D": true,
+        "gui_RANSAC3D": false,
         "gui_HSF": false,
         "gui_BLOB": false,
         "gui_BLINK": false,

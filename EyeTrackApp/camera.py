@@ -40,6 +40,7 @@ import psutil, os
 import sys
 # from cv2 import VideoWriter, VideoWriter_fourcc
 import imageio
+from utils.misc_utils import resource_user_data_folder
 
 process = psutil.Process(os.getpid())  # set process priority to low
 try:
@@ -109,7 +110,7 @@ class Camera:
         self.video_writer = None # VideoWriter('output_video.avi', fourcc, 20.0, (680, 480))  # Assuming a saved video width and height of 680x480
 
         # Initialize video writer
-        self.video_writer = imageio.get_writer('output.mp4', fps=30)
+        self.video_writer = imageio.get_writer(resource_user_data_folder('video', 'output.mp4'), fps=30)
         
 
     def __del__(self):
@@ -367,8 +368,8 @@ class Camera:
             # gui_should_save_video = self.config.settings.gui_should_save_video_right
             # gui_video_save_path = self.config.settings.gui_video_save_path_right
 
-            gui_should_save_video: bool = True
-            gui_video_save_path: str = f'output_video_{str(self.camera_index)}.avi'
+            gui_should_save_video: bool = False
+            gui_video_save_path: str = resource_user_data_folder('video', f'output_video_{str(self.camera_index)}.avi').as_posix()
 
             print(f'\tgui_should_save_video: {gui_should_save_video}, gui_video_save_path: "{gui_video_save_path}"')
             # gui_should_save_video
@@ -385,7 +386,7 @@ class Camera:
             # fourcc = cv2.VideoWriter_fourcc(*"MJPG")
             print(f'\tMaking new VideoWriter with:\n\tfps: {fps} ({frame_width} x {frame_height})')
             # fps = max(fps, 15)
-            self.video_writer = VideoWriter(gui_video_save_path, fourcc, 15, (frame_width, frame_height)) # , isColor=False
+            self.video_writer = VideoWriter(gui_video_save_path.as_posix(), fourcc, 15, (frame_width, frame_height)) # , isColor=False
 
         # Write video frame to file
         # if self.video_writer is not None:
