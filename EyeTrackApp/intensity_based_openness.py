@@ -26,6 +26,7 @@ Copyright (c) 2023 EyeTrackVR <3
 LICENSE: GNU GPLv3 
 ------------------------------------------------------------------------------------------------------
 """
+from pathlib import Path
 import numpy as np
 import time
 import os
@@ -33,6 +34,7 @@ import cv2
 from enums import EyeLR
 from one_euro_filter import OneEuroFilter
 from utils.img_utils import safe_crop
+from utils.misc_utils import resource_user_configs_folder
 from enum import IntEnum
 import psutil
 import sys
@@ -128,16 +130,15 @@ def newdata(frameshape):
     print("\033[94m[INFO] Initialise data for blinking.\033[0m")
     return np.zeros(frameshape, dtype=np.uint32)
 
-
 class IntensityBasedOpeness:
     def __init__(self, eye_id):
         # todo: It is necessary to consider whether the filename can be changed in the configuration file, etc.
         if eye_id in [EyeId.LEFT]:
-            self.imgfile = "IBO_LEFT.png"
+            self.imgfile = resource_user_configs_folder("IBO_LEFT.png").resolve().as_posix()
         else:
             pass
         if eye_id in [EyeId.RIGHT]:
-            self.imgfile = "IBO_RIGHT.png"
+            self.imgfile = resource_user_configs_folder("IBO_RIGHT.png").resolve().as_posix()
         else:
             pass
         # self.imgfile = "IBO_LEFT.png" if eyeside is EyeLR.LEFT else "IBO_RIGHT.png"

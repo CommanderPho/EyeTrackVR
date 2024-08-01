@@ -25,10 +25,12 @@ LICENSE: GNU GPLv3
 """
 
 import os
+from pathlib import Path
 import PySimpleGUI as sg
 import queue
 import requests
 import threading
+import argparse
 from camera_widget import CameraWidget
 from config import EyeTrackConfig
 from eye import EyeId
@@ -59,9 +61,9 @@ page_url = "https://github.com/RedHawk989/EyeTrackVR/releases/latest"
 appversion = "EyeTrackApp 0.2.0 BETA 11"
 
 
-def main():
+def main(config_path):
     # Get Configuration
-    config: EyeTrackConfig = EyeTrackConfig.load()
+    config: EyeTrackConfig = EyeTrackConfig.load(overwriting_config_path=config_path)
     config.save()
 
     cancellation_event = threading.Event()
@@ -315,5 +317,34 @@ def main():
                 if setting.started():
                     setting.render(window, event, values)
 
+
+
 if __name__ == "__main__":
-    main()
+    
+    parser = argparse.ArgumentParser(description=__doc__)
+    # parser.add_argument('input_path', help='Path to input data file')
+    # parser.add_argument('h5_path', help='Path to output HDF5 file')
+    parser.add_argument('-config_path', '--config-path', default="../user_configs/eyetrack_settings.json", help='Path to the config file')
+    # parser.add_argument('-c', '--config-path', default="user_configs/eyetrack_settings.json", help='Name of the group in which to save the scans in the output file')
+
+    # mode_group = parser.add_mutually_exclusive_group()
+    # mode_group.add_argument('-o', '--overwrite', action="store_true",
+    #                         help='Overwrite output file if it exists, ' +
+    #                             'else create new file.')
+    # mode_group.add_argument('-a', '--append', action="store_true",
+    #                         help='Append data to existing file if it exists, ' +
+    #                             'else create new file.')
+
+    # parser.add_argument('--overwrite-data', action="store_true",
+    #                     help='In append mode, overwrite existing groups and ' +
+    #                         'datasets in the output file, if they exist with ' +
+    #                         'the same name as input data. By default, existing' +
+    #                         ' data is not touched, corresponding input data is' +
+    #                         ' ignored.')
+
+    args = parser.parse_args()
+
+    config_path = Path(args.config_path).resolve()
+    print(config_path)
+    
+    main(config_path=config_path)
