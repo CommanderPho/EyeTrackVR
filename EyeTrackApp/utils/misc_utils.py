@@ -91,13 +91,19 @@ def resource_user_configs_folder(*other):
         
 
 
-# def resource_user_data_folder(*other):
-#     """ Get absolute path to the user configs folder, or if *other is provided it will build the proper url for any files that are its contents. """
-#     user_configs_folder = Path(resource_path("../user_configs")).resolve()
-#     assert user_configs_folder is not None
-#     assert user_configs_folder.exists(), f"user_configs_folder: {user_configs_folder}"
-#     # print(f'user_configs_folder: {user_configs_folder}')
-#     if len(other) == 0:
-#         return user_configs_folder
-#     else:
-#         return user_configs_folder.joinpath(*other).resolve()
+def resource_user_data_folder(*other):
+    """ Get absolute path to the user data folder, or if *other is provided it will build the proper url for any files that are its contents.
+    
+    Usage:
+    from utils.misc_utils import resource_user_data_folder
+    
+     """
+    user_data_folder = Path(resource_path("../user_data")).resolve()
+    assert user_data_folder is not None
+    assert user_data_folder.exists(), f"user_data_folder: {user_data_folder}"
+    # print(f'user_data_folder: {user_configs_folder}')
+    if len(other) == 0:
+        return user_data_folder
+    else:
+        return user_data_folder.joinpath(*other).resolve()
+        

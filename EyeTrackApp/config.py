@@ -32,6 +32,7 @@ from pydantic import BaseModel
 from typing import Union, List
 import os
 
+from utils.misc_utils import resource_user_data_folder
 
 CONFIG_FILE_NAME: str = "eyetrack_settings.json"
 BACKUP_CONFIG_FILE_NAME: str = "eyetrack_settings.backup"
@@ -125,8 +126,8 @@ class EyeTrackSettingsConfig(BaseModel):
     
     gui_should_save_video: bool = False
     gui_should_save_video_right: bool = False
-    gui_video_save_path: str = 'left_video.mp4'
-    gui_video_save_path_right: str = 'right_video.mp4'
+    gui_video_save_path: str = resource_user_data_folder('video', 'left_video.mp4').as_posix()
+    gui_video_save_path_right: str = resource_user_data_folder('video', 'right_video.mp4').as_posix()
     
 
 

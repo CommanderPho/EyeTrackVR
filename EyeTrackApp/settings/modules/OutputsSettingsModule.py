@@ -2,6 +2,8 @@ from config import EyeTrackSettingsConfig
 from settings.modules.BaseModule import BaseSettingsModule, BaseValidationModel
 import PySimpleGUI as sg
 
+from utils.misc_utils import resource_user_data_folder
+
 
 class OutputsSettingsValidationModel(BaseValidationModel):
 	gui_should_save_video_right: bool
@@ -37,7 +39,7 @@ class OutputsSettingsModule(BaseSettingsModule):
     # gui_outer_side_falloff: bool = True
     # gui_eye_dominant_diff_thresh: float = 0.3
 
-    def get_layout(self):
+    def get_layout(self):        
         return [
             [
                 sg.Text("Output Settings:", background_color="#242224"),
