@@ -97,7 +97,11 @@
         "gui_osc_vrcft_v1": false,
         "gui_osc_vrcft_v2": false,
         "gui_vrc_native": true,
-        "gui_pupil_dilation": true
+        "gui_pupil_dilation": true,
+        "gui_should_save_video": false,
+        "gui_should_save_video_right": false,
+        "gui_video_save_path": "C:/Users/pho/repos/ExternalTesting/EyeTrackVR/user_data/video/left_video.mp4",
+        "gui_video_save_path_right": "C:/Users/pho/repos/ExternalTesting/EyeTrackVR/user_data/video/right_video.mp4"
     },
     "eye_display_id": 0
 }
