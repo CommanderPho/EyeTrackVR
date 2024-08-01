@@ -130,25 +130,15 @@ def newdata(frameshape):
     print("\033[94m[INFO] Initialise data for blinking.\033[0m")
     return np.zeros(frameshape, dtype=np.uint32)
 
-
-# user_configs_folder = Path(resource_path("../user_configs")).resolve()
-user_configs_folder = resource_user_configs_folder()
-# assert user_configs_folder.exists()
-# print(f'user_configs_folder: {user_configs_folder}')
-
-
 class IntensityBasedOpeness:
     def __init__(self, eye_id):
         # todo: It is necessary to consider whether the filename can be changed in the configuration file, etc.
-        assert user_configs_folder is not None
-        assert user_configs_folder.exists(), f"user_configs_folder: {user_configs_folder}"
-        
         if eye_id in [EyeId.LEFT]:
-            self.imgfile = user_configs_folder.joinpath("IBO_LEFT.png").resolve()
+            self.imgfile = resource_user_configs_folder("IBO_LEFT.png").resolve().as_posix()
         else:
             pass
         if eye_id in [EyeId.RIGHT]:
-            self.imgfile = user_configs_folder.joinpath("IBO_RIGHT.png").resolve()
+            self.imgfile = resource_user_configs_folder("IBO_RIGHT.png").resolve().as_posix()
         else:
             pass
         # self.imgfile = "IBO_LEFT.png" if eyeside is EyeLR.LEFT else "IBO_RIGHT.png"
