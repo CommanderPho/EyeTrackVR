@@ -396,7 +396,7 @@ class CameraWidget:
             window[self.gui_roi_message].update(visible=False)
             window[self.gui_output_graph].update(visible=False)
         elif self.camera.camera_status == CameraState.CONNECTING:
-            window[self.gui_mode_readout].update("Camera Connecting")
+            window[self.gui_mode_readout].update("Searching for Camera...")
         elif self.camera.camera_status == CameraState.DISCONNECTED:
             window[self.gui_mode_readout].update("Camera Reconnecting...")
 
