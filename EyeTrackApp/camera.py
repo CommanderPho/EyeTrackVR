@@ -354,39 +354,39 @@ class Camera:
         self.video_writer.append_data(image)
         
 
-        if self.video_writer is None:
-            ## The video writer should be able to read the `self.camera_output_outgoing` queue just the like algorithms do
-            print(f'self.video_writer is None. Setting up VideoWriter:\n\tself.camera_address: {self.camera_address}, self.camera_index: {self.camera_index}')
-            # self.camera_address
-            # self.camera_index
+        # if self.video_writer is None:
+        #     ## The video writer should be able to read the `self.camera_output_outgoing` queue just the like algorithms do
+        #     print(f'self.video_writer is None. Setting up VideoWriter:\n\tself.camera_address: {self.camera_address}, self.camera_index: {self.camera_index}')
+        #     # self.camera_address
+        #     # self.camera_index
 
-            # ## Left
-            # gui_should_save_video = self.config.settings.gui_should_save_video
-            # gui_video_save_path = self.config.settings.gui_video_save_path
+        #     # ## Left
+        #     # gui_should_save_video = self.config.settings.gui_should_save_video
+        #     # gui_video_save_path = self.config.settings.gui_video_save_path
             
-            # ## Right:
-            # gui_should_save_video = self.config.settings.gui_should_save_video_right
-            # gui_video_save_path = self.config.settings.gui_video_save_path_right
+        #     # ## Right:
+        #     # gui_should_save_video = self.config.settings.gui_should_save_video_right
+        #     # gui_video_save_path = self.config.settings.gui_video_save_path_right
 
-            gui_should_save_video: bool = False
-            gui_video_save_path: str = resource_user_data_folder('video', f'output_video_{str(self.camera_index)}.avi').as_posix()
+        #     gui_should_save_video: bool = False
+        #     gui_video_save_path: str = resource_user_data_folder('video', f'output_video_{str(self.camera_index)}.avi').as_posix()
 
-            print(f'\tgui_should_save_video: {gui_should_save_video}, gui_video_save_path: "{gui_video_save_path}"')
-            # gui_should_save_video
+        #     print(f'\tgui_should_save_video: {gui_should_save_video}, gui_video_save_path: "{gui_video_save_path}"')
+        #     # gui_should_save_video
 
-            gui_video_save_path = Path(gui_video_save_path).resolve()
-            gui_video_save_path = gui_video_save_path.with_suffix(suffix='.avi')
-            print(f'\tgui_video_save_path: "{gui_video_save_path}"')            
+        #     gui_video_save_path = Path(gui_video_save_path).resolve()
+        #     gui_video_save_path = gui_video_save_path.with_suffix(suffix='.avi')
+        #     print(f'\tgui_video_save_path: "{gui_video_save_path}"')            
 
-            # gui_video_save_path = 'output_video.avi'
+        #     # gui_video_save_path = 'output_video.avi'
 
-            # Instantiate the video writer when the first frame is captured
-            frame_height, frame_width = image.shape[:2]
-            fourcc = VideoWriter_fourcc(*'MJPG')  # 'XVID' for avi, 'mp4v' for mp4
-            # fourcc = cv2.VideoWriter_fourcc(*"MJPG")
-            print(f'\tMaking new VideoWriter with:\n\tfps: {fps} ({frame_width} x {frame_height})')
-            # fps = max(fps, 15)
-            self.video_writer = VideoWriter(gui_video_save_path.as_posix(), fourcc, 15, (frame_width, frame_height)) # , isColor=False
+        #     # Instantiate the video writer when the first frame is captured
+        #     frame_height, frame_width = image.shape[:2]
+        #     fourcc = VideoWriter_fourcc(*'MJPG')  # 'XVID' for avi, 'mp4v' for mp4
+        #     # fourcc = cv2.VideoWriter_fourcc(*"MJPG")
+        #     print(f'\tMaking new VideoWriter with:\n\tfps: {fps} ({frame_width} x {frame_height})')
+        #     # fps = max(fps, 15)
+        #     self.video_writer = VideoWriter(gui_video_save_path.as_posix(), fourcc, 15, (frame_width, frame_height)) # , isColor=False
 
         # Write video frame to file
         # if self.video_writer is not None:
