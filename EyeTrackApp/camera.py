@@ -110,7 +110,7 @@ class Camera:
         self.video_writer = None # VideoWriter('output_video.avi', fourcc, 20.0, (680, 480))  # Assuming a saved video width and height of 680x480
 
         # Initialize video writer
-        self.video_writer = imageio.get_writer(resource_user_data_folder('video', 'output.mp4'), fps=30)
+        self.video_writer = imageio.get_writer(resource_user_data_folder('video', 'output.mp4'), fps=15)
         
 
     def __del__(self):
@@ -351,7 +351,7 @@ class Camera:
         
         ## write to file second:
         # Write frame to video file
-        self.video_writer.append_data(image)
+        # self.video_writer.append_data(image) ## USED TO BE USED
         
 
         # if self.video_writer is None:
@@ -393,7 +393,7 @@ class Camera:
         # image = cv2.flip(image, 0)
 
         # write the flipped frame
-        self.video_writer.write(image.astype('uint8'))
+        # self.video_writer.write(image.astype('uint8')) ## USED TO BE USED
 
         # cv2.imshow('frame', image)
         # if cv2.waitKey(1) & 0xFF == ord('q'):
