@@ -23,7 +23,7 @@
         "roi_window_w": 240,
         "roi_window_h": 240,
         "focal_length": 30,
-        "capture_source": "COM4",
+        "capture_source": "http://10.0.0.57",
         "calib_XMAX": null,
         "calib_XMIN": null,
         "calib_YMAX": null,
