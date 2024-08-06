@@ -175,6 +175,15 @@
 "launch": {
 	"version": "0.2.0",
 	"configurations": [
+		// {
+		// 	"name": "Python: Current File",
+		// 	"type": "python",
+		// 	"request": "launch",
+		// 	"program": "${file}",
+		// 	"console": "integratedTerminal",
+		// 	"cwd": "${workspaceFolder}/EyeTrackApp/",
+		// 	"justMyCode": true,
+		// },
 	//  & 'K:\FastSwap\Environments\pypoetry\pypoetry\Cache\virtualenvs\eyetrackvr-IEmwn9lV-py3.11\Scripts\python.exe' 'c:\Users\pho\.vscode\extensions\ms-python.python-2023.22.0\pythonFiles\lib\python\debugpy\adapter/../..\debugpy\launcher' '4609' '--' 'c:\Users\pho\repos\ExternalTesting\EyeTrackVR\EyeTrackApp\eyetrackapp.py' 
 	]
 }
