@@ -155,6 +155,18 @@
 				"terminalName": "EyeTrackApp Terminal",
 				"tooltip": "Launch the eyetrackapp GUI",
             },
+            {
+				"cwd": "${workspaceFolder}",
+				// "cwd": "${workspaceFolder}/EyeTrackApp/",
+                "name": "Clean builds",
+                "color": "red",
+                // "command": "python scripts/clean.py",
+				"singleInstance": true,
+                "command": "poetry run python scripts/clean.py", /* This is executed in the terminal */
+				"terminalName": "EyeTrackApp Terminal",
+				"tooltip": "Clean all built files - handle deletion of files/directories",
+
+            },
             // {
 			// 	"cwd": "${workspaceFolder}/EyeTrackApp/",
             //     "name": "Build pyinstaller",
