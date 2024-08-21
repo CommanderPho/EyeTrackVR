@@ -32,7 +32,6 @@ flask = "^3.0.3"
 imutils = "^0.5.4"
 imageio = {extras = ["ffmpeg"], version = "^2.34.1"}
 pysimplegui-4-foss = "^4.6.4.1"
-pydantic = "^1.10.2"
 win10toast_click = "^0.1.2"
 beautifulsoup4 = "^4.11.1"
 
@@ -44,9 +43,6 @@ flake8 = "^5.0.4"
 
 [tool.taskipy.tasks]
 dev = "python eyetrackapp.py"
-
-[tool.black]
-line-length = 120
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
@@ -65,6 +61,7 @@ install = "poetry: command"   # poetry install is a built-in command, so this sc
 run = "python EyeTrackApp/eyetrackapp.py"
 pyinstaller = "pyinstaller EyeTrackApp/eyetrackapp.spec EyeTrackApp/eyetrackapp.py"
 clean = "python scripts/clean.py" # Python script to handle deletion of files/directories
+
 [tool.black]
 line-length = 135
 exclude = "(.git|.env|venv)"
