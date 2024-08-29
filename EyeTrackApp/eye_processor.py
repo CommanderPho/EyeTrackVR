@@ -28,8 +28,6 @@ LICENSE: GNU GPLv3
 ------------------------------------------------------------------------------------------------------
 """
 
-from operator import truth
-from dataclasses import dataclass
 import sys
 import asyncio
 import os
@@ -41,14 +39,7 @@ from config import EyeTrackSettingsConfig
 from pye3d.camera import CameraModel
 from pye3d.detector_3d import Detector3D, DetectorMode
 import queue
-import threading
-import numpy as np
-import cv2
-from enum import Enum
-from one_euro_filter import OneEuroFilter
-from utils.misc_utils import PlaySound, SND_FILENAME, SND_ASYNC, resource_path
-import importlib
-from osc import EyeId
+from eye import EyeId
 from osc_calibrate_filter import *
 from daddy import External_Run_DADDY
 from leap import External_Run_LEAP
@@ -61,7 +52,7 @@ from eye import EyeInfo, EyeInfoOrigin
 from intensity_based_openness import *
 from ellipse_based_pupil_dilation import *
 from AHSF import *
-
+from osc.OSCMessage import OSCMessageType, OSCMessage
 
 
 def run_once(f):
@@ -91,6 +82,7 @@ class EyeProcessor:
         capture_queue_incoming: "queue.Queue(maxsize=2)",
         image_queue_outgoing: "queue.Queue(maxsize=2)",
         eye_id,
+        osc_queue: queue.Queue,
     ):
         self.main_config = EyeTrackSettingsConfig
         self.config = config
@@ -104,6 +96,9 @@ class EyeProcessor:
         self.eye_id = eye_id
         self.baseconfig = baseconfig
         self.filterlist = []
+        self.left_eye_data = [(0.351, 0.399, 1), (0.352, 0.400, 1)]  # Example data
+        self.right_eye_data = [(0.351, 0.399, 1), (0.352, 0.400, 1)]  # Example data
+        self.osc_queue = osc_queue
 
         # Cross algo state
         self.lkg_projected_sphere = None
@@ -182,87 +177,111 @@ class EyeProcessor:
             min_cutoff = 0.0004
             beta = 0.9
         noisy_point = np.array([1, 1])
-        self.one_euro_filter = OneEuroFilter(
-            noisy_point, min_cutoff=min_cutoff, beta=beta
-        )
+        self.one_euro_filter = OneEuroFilter(noisy_point, min_cutoff=min_cutoff, beta=beta)
 
     def output_images_and_update(self, threshold_image, output_information: EyeInfo):
-        try:
-            image_stack = np.concatenate(
-                (
-                    cv2.cvtColor(self.current_image_gray, cv2.COLOR_GRAY2BGR),
-                    cv2.cvtColor(threshold_image, cv2.COLOR_GRAY2BGR),
-                ),
-                axis=1,
-            )
-            self.image_queue_outgoing.put((image_stack, output_information))
-            self.previous_image = self.current_image
-            self.previous_rotation = self.config.rotation_angle
-        except:  # If this fails it likely means that the images are not the same size for some reason.
-            print(
-                "\033[91m[ERROR] Size of frames to display are of unequal sizes.\033[0m"
-            )
+        #  try:  # I do not like this try.
 
-        #    pass
+        self.current_image_gray = cv2.resize(self.current_image_gray, (150, 150), interpolation=cv2.INTER_AREA)
+        threshold_image = cv2.resize(threshold_image, (150, 150), interpolation=cv2.INTER_AREA)
+        image_stack = np.concatenate(
+            (
+                cv2.cvtColor(self.current_image_gray, cv2.COLOR_GRAY2BGR),
+                cv2.cvtColor(threshold_image, cv2.COLOR_GRAY2BGR),
+            ),
+            axis=1,
+        )
+        self.image_queue_outgoing.put((image_stack, output_information))
+        if self.image_queue_outgoing.qsize() > 1:
+            self.image_queue_outgoing.get()
+
+        self.previous_image = self.current_image
+        self.previous_rotation = self.config.rotation_angle
+
+    #       except:  # If this fails it likely means that the images are not the same size for some reason.
+    #    print("\033[91m[ERROR] Size of frames to display are of unequal sizes.\033[0m")
 
     def capture_crop_rotate_image(self):
         # Get our current frame
 
-        try:
-            # Get frame from capture source, crop to ROI
-            self.current_image = self.current_image[
-                int(self.config.roi_window_y) : int(
-                    self.config.roi_window_y + self.config.roi_window_h
-                ),
-                int(self.config.roi_window_x) : int(
-                    self.config.roi_window_x + self.config.roi_window_w
-                ),
-            ]
-            self.ibo.change_roi(self.config.dict(include=self.roi_include_set))
+        self.ibo.change_roi(self.config.dict(include=self.roi_include_set))
+        roi_x = self.config.roi_window_x
+        roi_y = self.config.roi_window_y
+        roi_w = self.config.roi_window_w
+        roi_h = self.config.roi_window_h
 
-        except:
-            # Failure to process frame, reuse previous frame.
-            self.current_image = self.previous_image
-            print("\033[91m[ERROR] Frame capture issue detected.\033[0m")
+        img_w, img_h, _ = self.current_image.shape
 
         try:
             # Apply rotation to cropped area. For any rotation area outside of the bounds of the image,
             # fill with avg color + 10.
-            try:
-                rows, cols, _ = self.current_image.shape
-            except:
-                rows, cols, _ = self.previous_image.shape
+            # fill with white (self.current_image_white) and average in-bounds color (self.current_image).
 
-            avg_color_per_row = np.average(self.current_image, axis=0)
-            avg_color = np.average(avg_color_per_row, axis=0)
-            ar, ag, ab = avg_color
-            avg_color = ar + 10
+            crop_matrix = np.float32([[1, 0, -roi_x], [0, 1, -roi_y], [0, 0, 1]])
+            img_center = (roi_w / 2, roi_h / 2)
 
-            rows, cols = self.current_image.shape[:2]
-            rotation_matrix = cv2.getRotationMatrix2D((cols / 2, rows / 2), self.config.rotation_angle, 1)
-            cos_theta = np.abs(rotation_matrix[0, 0])
-            sin_theta = np.abs(rotation_matrix[0, 1])
-            new_cols = int((cols * cos_theta) + (rows * sin_theta))
-            new_rows = int((cols * sin_theta) + (rows * cos_theta))
-            rotation_matrix[0, 2] += (new_cols - cols) / 2
-            rotation_matrix[1, 2] += (new_rows - rows) / 2
+            rotation_matrix = cv2.getRotationMatrix2D(img_center, self.config.rotation_angle, 1)
 
-            # Perform the rotation without cropping
-            self.current_image = cv2.warpAffine(
+            #  rows, cols = self.current_image.shape[:2]
+            #  rotation_matrix = cv2.getRotationMatrix2D((cols / 2, rows / 2), self.config.rotation_angle, 1)
+            # cos_theta = np.abs(rotation_matrix[0, 0])
+            #     sin_theta = np.abs(rotation_matrix[0, 1])
+            #    new_cols = int((cols * cos_theta) + (rows * sin_theta))
+            #   new_rows = int((cols * sin_theta) + (rows * cos_theta))
+            #  rotation_matrix[0, 2] += (new_cols - cols) / 2
+            # rotation_matrix[1, 2] += (new_rows - rows) / 2
+
+            matrix = np.matmul(rotation_matrix, crop_matrix)
+            self.current_image_white = cv2.warpAffine(
                 self.current_image,
-                rotation_matrix,
-                (new_cols, new_rows),
+                matrix,
+                (roi_w, roi_h),
                 borderMode=cv2.BORDER_CONSTANT,
-                borderValue=(avg_color, avg_color, avg_color),
-                flags=cv2.INTER_LINEAR,
+                borderValue=(255, 255, 255),
             )
 
             self.current_image_white = cv2.warpAffine(
                 self.current_image,
-                rotation_matrix,
-                (cols, rows),
+                matrix,
+                (roi_w, roi_h),
                 borderMode=cv2.BORDER_CONSTANT,
                 borderValue=(255, 255, 255),
+            )
+
+            inv_matrix = np.linalg.inv(np.vstack((matrix, [0, 0, 1])))[:-1]
+            # calculate crop corner locations in original image space
+            corners = np.matmul([[0, 0, 1], [roi_w, 0, 1], [0, roi_h, 1], [roi_w, roi_h, 1]], np.transpose(inv_matrix))
+            fits_in_bounds = all(0 <= x <= img_w and 0 <= y <= img_h for (x, y) in corners)
+
+            if fits_in_bounds:
+                # crop is entirely within original image bounds so average color and white are identical
+                self.current_image = self.current_image_white
+                return True
+
+            # image does not fit in bounds, so warp, calculate average color of covered pixels, and apply that to the outside region.
+
+            # warp image with alpha
+            alpha = np.full(self.current_image.shape[:2], 255, dtype=np.uint8)
+            self.current_image = np.dstack((self.current_image, alpha))
+
+            self.current_image = cv2.warpAffine(
+                self.current_image,
+                matrix,
+                (roi_w, roi_h),
+                borderMode=cv2.BORDER_CONSTANT,
+                borderValue=(0, 0, 0, 0),
+            )
+
+            avg_color_per_row = np.average(self.current_image, axis=0)
+            avg_color = np.average(avg_color_per_row, axis=0)
+            avg_color_norm = avg_color[0:3] / avg_color[3]
+            ar, ag, ab = np.clip(avg_color_norm, 0, 1)
+
+            # add border color to image masked by alpha and discard alpha channel
+            rgb_ch = self.current_image[:, :, :3]
+            inv_alpha_ch = 255 - self.current_image[:, :, 3]
+            self.current_image = rgb_ch + np.stack(
+                np.uint8([inv_alpha_ch * ar, inv_alpha_ch * ag, inv_alpha_ch * ab]), axis=-1
             )
 
             return True
@@ -270,7 +289,6 @@ class EyeProcessor:
             pass
 
     def UPDATE(self):
-        # print(self.eyeopen)
 
         if self.settings.gui_BLINK:
             self.eyeopen = BLINK(self)
@@ -285,51 +303,36 @@ class EyeProcessor:
                 self.settings.ibo_filter_samples,
                 self.settings.ibo_average_output_samples,
             )
-            if self.eyeopen < float(
-                self.settings.ibo_fully_close_eye_threshold
-            ):  # threshold so the eye fully closes
+            # threshold so the eye fully closes
+            if self.eyeopen < float(self.settings.ibo_fully_close_eye_threshold):
                 self.eyeopen = 0.0
 
             if self.bd_blink == True:
                 print("blinks")
                 pass
 
-        if self.settings.gui_IBO and self.eyeopen != 0.0:
-            ibo = self.ibo.intense(
-                self.rawx,
-                self.rawy,
-                self.current_image_white,
-                self.settings.ibo_filter_samples,
-                self.settings.ibo_average_output_samples,
-            )
-
-        if self.settings.gui_LEAP_lid and self.eyeopen != 0.0:
+        if self.settings.gui_LEAP_lid and self.eyeopen != 0.0 and not self.settings.gui_LEAP:
             (
                 self.current_image_gray,
                 self.rawx,
                 self.rawy,
                 self.eyeopen,
             ) = self.er_leap.run(self.current_image_gray, self.current_image_gray_clean)
-        #  print(self.eyeopen)
 
-        if (
-            len(self.prev_y_list) >= 100
-        ):  # "lock" eye when close/blink IN TESTING, kinda broke
+        if len(self.prev_y_list) >= 100:  # "lock" eye when close/blink IN TESTING, kinda broke
             self.prev_y_list.pop(0)
             self.prev_y_list.append(self.out_y)
         else:
             self.prev_y_list.append(self.out_y)
 
-        # print(abs(self.eyeopen - self.past_blink))
         blink_vec = min(abs(self.eyeopen - self.past_blink), 1)  # clamp to 1
 
-        # if blink_vec >= 0.2:
         if blink_vec >= 0.18:
             # self.out_x = sum(self.prev_x_list) / len(self.prev_x_list)
             self.out_y = sum(self.prev_y_list) / len(self.prev_y_list)
         #   print('AVG', self.out_y, len(self.prev_y_list))
 
-        if self.settings.gui_pupil_dilation and self.eyeopen > 0.2:
+        if self.settings.gui_pupil_dilation:
             self.pupil_dilation = self.ebpd.intense(
                 self.pupil_width,
                 self.pupil_height,
@@ -357,28 +360,40 @@ class EyeProcessor:
                 self.avg_velocity,
             ),
         )
-        if self.settings.gui_RANSACBLINK and self.eyeopen == 0.0:
-            pass
-        else:
-            self.eyeopen = 0.8
+
+        #    if self.settings.gui_RANSACBLINK and self.eyeopen == 0.0: why is this here
+        #       pass
+        #  else:
+        #     self.eyeopen = 0.81
+
+        osc_message = OSCMessage(
+            type=OSCMessageType.EYE_INFO,
+            data=(
+                self.eye_id,
+                EyeInfo(
+                    self.current_algo,
+                    self.out_x,
+                    self.out_y,
+                    self.pupil_dilation,
+                    self.eyeopen,
+                    self.avg_velocity,
+                ),
+            ),
+        )
+        self.osc_queue.put(osc_message)
+        self.eyeopen = 0.8  # TODO: remove this by fixing checks if is 0.0
 
     def BLINKM(self):
         self.eyeopen = BLINK(self)
 
     def LEAPM(self):
         self.thresh = self.current_image_gray.copy()
-        (
-            self.current_image_gray,
-            self.rawx,
-            self.rawy,
-            self.eyeopen,
-        ) = self.er_leap.run(
+        (self.current_image_gray, self.rawx, self.rawy, self.eyeopen,) = self.er_leap.run(
             self.current_image_gray, self.current_image_gray_clean
         )  # TODO: make own self var and LEAP toggle
         self.thresh = self.current_image_gray.copy()
-        self.out_x, self.out_y, self.avg_velocity = cal.cal_osc(
-            self, self.rawx, self.rawy, self.angle
-        )
+        # todo: lorow, fix this as well
+        self.out_x, self.out_y, self.avg_velocity = cal.cal_osc(self, self.rawx, self.rawy, self.angle)
         self.current_algorithm = EyeInfoOrigin.LEAP
 
     # print(self.eyeopen)
@@ -389,9 +404,7 @@ class EyeProcessor:
         self.thresh = self.current_image_gray.copy()
         self.rawx, self.rawy, self.radius = self.er_daddy.run(self.current_image_gray)
         # Daddy also uses a one euro filter, so I'll have to use it twice, but I'm not going to think too much about it.
-        self.out_x, self.out_y, self.avg_velocity = cal.cal_osc(
-            self, self.rawx, self.rawy, self.angle
-        )
+        self.out_x, self.out_y, self.avg_velocity = cal.cal_osc(self, self.rawx, self.rawy, self.angle)
         self.current_algorithm = EyeInfoOrigin.DADDY
 
     def AHSFRACM(self):
@@ -436,9 +449,7 @@ class EyeProcessor:
         # if self.prev_x is None:
         #   self.prev_x = self.rawx
         #  self.prev_y = self.rawy
-        self.out_x, self.out_y, self.avg_velocity = cal.cal_osc(
-            self, self.rawx, self.rawy, self.angle
-        )
+        self.out_x, self.out_y, self.avg_velocity = cal.cal_osc(self, self.rawx, self.rawy, self.angle)
         self.current_algorithm = EyeInfoOrigin.HSRAC
 
     def HSRACM(self):
@@ -456,9 +467,7 @@ class EyeProcessor:
             pass
 
         self.hasrac_en = True
-        self.rawx, self.rawy, self.thresh, self.radius = self.er_hsf.run(
-            self.current_image_gray
-        )
+        self.rawx, self.rawy, self.thresh, self.radius = self.er_hsf.run(self.current_image_gray)
         (
             self.rawx,
             self.rawy,
@@ -476,9 +485,7 @@ class EyeProcessor:
         # if self.prev_x is None:
         #   self.prev_x = self.rawx
         #  self.prev_y = self.rawy
-        self.out_x, self.out_y, self.avg_velocity = cal.cal_osc(
-            self, self.rawx, self.rawy, self.angle
-        )
+        self.out_x, self.out_y, self.avg_velocity = cal.cal_osc(self, self.rawx, self.rawy, self.angle)
         self.current_algorithm = EyeInfoOrigin.HSRAC
 
     def HSFM(self):
@@ -495,12 +502,8 @@ class EyeProcessor:
         else:
             pass
         # todo: add process to initialise er_hsf when resolution changes
-        self.rawx, self.rawy, self.thresh, self.radius = self.er_hsf.run(
-            self.current_image_gray
-        )
-        self.out_x, self.out_y, self.avg_velocity = cal.cal_osc(
-            self, self.rawx, self.rawy, self.angle
-        )
+        self.rawx, self.rawy, self.thresh, self.radius = self.er_hsf.run(self.current_image_gray)
+        self.out_x, self.out_y, self.avg_velocity = cal.cal_osc(self, self.rawx, self.rawy, self.angle)
         self.current_algorithm = EyeInfoOrigin.HSF
 
     def RANSAC3DM(self):
@@ -517,9 +520,7 @@ class EyeProcessor:
         else:
             pass
         self.hasrac_en = False
-        current_image_gray_copy = (
-            self.current_image_gray.copy()
-        )  # Duplicate before overwriting in RANSAC3D.
+        current_image_gray_copy = self.current_image_gray.copy()  # Duplicate before overwriting in RANSAC3D.
         (
             self.rawx,
             self.rawy,
@@ -531,9 +532,7 @@ class EyeProcessor:
         ) = RANSAC3D(self, True)
         if self.settings.gui_RANSACBLINK:
             self.eyeopen = ranblink
-        self.out_x, self.out_y, self.avg_velocity = cal.cal_osc(
-            self, self.rawx, self.rawy, self.angle
-        )
+        self.out_x, self.out_y, self.avg_velocity = cal.cal_osc(self, self.rawx, self.rawy, self.angle)
         self.current_algorithm = EyeInfoOrigin.RANSAC
 
     def AHSFM(self):
@@ -557,9 +556,7 @@ class EyeProcessor:
             self.radius,
         ) = External_Run_AHSF(self.current_image_gray)
         self.thresh = self.current_image_gray
-        self.out_x, self.out_y, self.avg_velocity = cal.cal_osc(
-            self, self.rawx, self.rawy, self.angle
-        )
+        self.out_x, self.out_y, self.avg_velocity = cal.cal_osc(self, self.rawx, self.rawy, self.angle)
         self.current_algorithm = EyeInfoOrigin.HSF
 
     def BLOBM(self):
@@ -577,7 +574,7 @@ class EyeProcessor:
             pass
         self.rawx, self.rawy, self.thresh = BLOB(self)
 
-        self.out_x, self.out_y = cal.cal_osc(self, self.rawx, self.rawy, self.angle)
+        self.out_x, self.out_y, self.avg_velocity = cal.cal_osc(self, self.rawx, self.rawy, self.angle)
         self.current_algorithm = EyeInfoOrigin.BLOB
 
     def ALGOSELECT(self):
@@ -666,9 +663,7 @@ class EyeProcessor:
 
         if self.settings.gui_HSRAC:
             if self.er_hsf is None:
-
                 if self.eye_id in [EyeId.LEFT]:
-
                     self.er_hsf = External_Run_HSF(
                         self.settings.gui_skip_autoradius,
                         self.settings.gui_HSF_radius_left,
@@ -724,8 +719,9 @@ class EyeProcessor:
 
         f = True
         while True:
+
             # f = True
-            #print(self.capture_queue_incoming.qsize())
+            # print(self.capture_queue_incoming.qsize())
             # Check to make sure we haven't been requested to close
             if self.cancellation_event.is_set():
                 print("\033[94m[INFO] Exiting Tracking thread\033[0m")
@@ -751,9 +747,7 @@ class EyeProcessor:
                     focal_length=self.config.focal_length,
                     resolution=(self.config.roi_window_w, self.config.roi_window_h),
                 )
-                self.detector_3d = Detector3D(
-                    camera=self.camera_model, long_term_mode=DetectorMode.blocking
-                )
+                self.detector_3d = Detector3D(camera=self.camera_model, long_term_mode=DetectorMode.blocking)
 
             try:
                 if self.capture_queue_incoming.empty():
@@ -765,19 +759,16 @@ class EyeProcessor:
                     self.current_fps,
                 ) = self.capture_queue_incoming.get(block=True, timeout=0.1)
             except queue.Empty:
-                #print("No image available")
+                # print("No image available")
                 continue
 
             if not self.capture_crop_rotate_image():
                 continue
 
-            self.current_image_gray = cv2.cvtColor(
-                self.current_image, cv2.COLOR_BGR2GRAY
-            )
+            self.current_image_gray = cv2.cvtColor(self.current_image, cv2.COLOR_BGR2GRAY)
             self.current_image_gray_clean = (
                 self.current_image_gray.copy()
             )  # copy this frame to have a clean image for blink algo
-
 
             if self.cancellation_event.is_set():
                 print("\033[94m[INFO] Exiting Tracking thread\033[0m")

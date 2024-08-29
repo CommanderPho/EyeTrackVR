@@ -31,11 +31,10 @@ import numpy as np
 import time
 import os
 import cv2
-from enums import EyeLR
+from eye import EyeId
 from one_euro_filter import OneEuroFilter
-from utils.img_utils import safe_crop
 from utils.misc_utils import resource_user_configs_folder
-from enum import IntEnum
+from utils.img_utils import safe_crop
 import psutil
 import sys
 
@@ -48,13 +47,6 @@ except AttributeError:
 else:
     process.nice(psutil.BELOW_NORMAL_PRIORITY_CLASS)  # Windows
     process.nice()
-
-
-class EyeId(IntEnum):
-    RIGHT = 0
-    LEFT = 1
-    BOTH = 2
-    SETTINGS = 3
 
 
 # higher intensity means more closed/ more white/less pupil
@@ -98,9 +90,7 @@ def data2csv(data_u32, filepath):
     # For data checking
     nonzero_index = np.nonzero(data_u32)  # (row,col)
     data_list = data_u32[nonzero_index].tolist()
-    datalines = [
-        "{},{},{}\n".format(x, y, val) for y, x, val in zip(*nonzero_index, data_list)
-    ]
+    datalines = ["{},{},{}\n".format(x, y, val) for y, x, val in zip(*nonzero_index, data_list)]
     with open(filepath, "w", encoding="utf-8") as out_f:
         out_f.write("x,y,intensity\n")
         out_f.writelines(datalines)
@@ -120,9 +110,7 @@ def u32_1ch_to_u16_3ch(img):
 def u16_3ch_to_u32_1ch(img):
     # The image format with the most bits that can be displayed on Windows without additional software and that opencv can handle is PNG's uint16
     out = img[:, :, 0].astype(np.float64)  # float64 = max 2^53
-    cv2.add(
-        out, img[:, :, 1].astype(np.float64) * np.float64(65536), dst=out
-    )  # opencv did not have uint32 type
+    cv2.add(out, img[:, :, 1].astype(np.float64) * np.float64(65536), dst=out)  # opencv did not have uint32 type
     return out.astype(np.uint32)  # cast
 
 
@@ -169,9 +157,7 @@ class IntensityBasedOpeness:
         min_cutoff = 0.0004
         beta = 0.9
         noisy_point = np.array([1, 1])
-        self.one_euro_filter = OneEuroFilter(
-            noisy_point, min_cutoff=min_cutoff, beta=beta
-        )
+        self.one_euro_filter = OneEuroFilter(noisy_point, min_cutoff=min_cutoff, beta=beta)
 
     def check(self, frameshape):
         # 0 in data is used as the initial value.
@@ -209,9 +195,7 @@ class IntensityBasedOpeness:
                 print("\033[94m[INFO] File does not exist.\033[0m")
                 req_newdata = True
         else:
-            if self.data.shape != frameshape or not np.array_equal(
-                self.img_roi, self.now_roi
-            ):
+            if self.data.shape != frameshape or not np.array_equal(self.img_roi, self.now_roi):
                 # If the ROI recorded in the image file differs from the current ROI
                 # todo: Using the previous and current frame sizes and centre positions from the original, etc., the data can be ported to some extent, but there may be many areas where code changes are required.
                 print("[INFO] \033[94mFrame size changed.\033[0m")
@@ -268,31 +252,11 @@ class IntensityBasedOpeness:
             self.filterlist.append(intensity)
 
         try:
-            if intensity >= np.percentile(
-                self.filterlist, 99
-            ):  # filter abnormally high values
-                # print('filter, assume blink')
+            if intensity >= np.percentile(self.filterlist, 99):  # filter abnormally high values
                 intensity = self.maxval
 
-        #    if intensity <= np.percentile( # TODO test this
-        #       self.filterlist, 0.3
-        #  ):  # filter abnormally low values
-        # print('filter, assume blink')
-        #    intensity = self.data[int_y, int_x]
         except:
             pass
-        # self.tri_filter.append(intensity)
-        # if len(self.tri_filter) > 3:
-        #   self.tri_filter.pop(0)
-        #  intensity = sum(self.tri_filter) / 3
-        # avg_color_per_row = np.average(frame_crop, axis=0)
-        # avg_color = np.average(avg_color_per_row, axis=0)
-        # ar, ag, ab = avg_color
-        #  intensity = int(ar * 8) #higher = closed
-
-        # cv2.imshow("IBO", frame_crop)
-        # if cv2.waitKey(1) & 0xFF == ord("q"):
-        #   pass
 
         # numpy:np.sum(),ndarray.sum()
         # opencv:cv2.sumElems()
@@ -333,9 +297,7 @@ class IntensityBasedOpeness:
             changed = True
             newval_flg = True
         else:
-            if (
-                intensity < data_val
-            ):  # if current intensity value is less (more pupil), save that
+            if intensity < data_val:  # if current intensity value is less (more pupil), save that
                 self.data[int_y, int_x] = intensity  # set value
                 changed = True
             else:
@@ -349,9 +311,7 @@ class IntensityBasedOpeness:
         if self.maxval == 0:  # that value is not yet saved
             self.maxval = intensity  # set value at 0 index
         else:
-            if (
-                intensity > self.maxval
-            ):  # if current intensity value is more (less pupil), save that NOTE: we have the
+            if intensity > self.maxval:  # if current intensity value is more (less pupil), save that NOTE: we have the
                 self.maxval = intensity - 5  # set value at 0 index
             else:
                 intensityd = max(
@@ -359,6 +319,7 @@ class IntensityBasedOpeness:
                 )  # continuously adjust closed intensity, will be set when user blink, used to allow eyes to close when lighting changes
                 self.maxval = intensityd  # set value at 0 index
         #     print(intensityd, intensity)
+
         if newval_flg:
             # Do the same thing as in the original version.
             eyeopen = self.prev_val  # 0.9
@@ -379,34 +340,12 @@ class IntensityBasedOpeness:
                     self.averageList.append(eyeopen)
                     eyeopen = np.average(self.averageList)
 
-            if eyeopen > 1:  # clamp values
-                eyeopen = 1.0
+            eyeopen = np.clip(eyeopen, 0.0, 1.0)
 
-            if eyeopen < 0:
-                eyeopen = 0.0
-
-        if changed and (
-            (time.time() - self.lct) > 11
-        ):  # save every 5 seconds if something changed to save disk usage
+        if changed and ((time.time() - self.lct) > 11):  # save every 5 seconds if something changed to save disk usage
             self.save()
             self.lct = time.time()
 
         self.prev_val = eyeopen
-        try:
-            noisy_point = np.array(
-                [float(eyeopen), float(eyeopen)]
-            )  # fliter our values with a One Euro Filter
-            point_hat = self.one_euro_filter(noisy_point)
-            eyeopenx = point_hat[0]
-            eyeopeny = point_hat[1]
-            eyeopen = (eyeopenx + eyeopeny) / 2
-        #   print(eyeopen, eyeopenx, eyeopeny)
-        except:
-            pass
-
-        #  eyevec = abs(self.prev_val - eyeopen)
-        # print(eyevec)
-        #  if eyevec > 0.4:
-        #      print("BLINK LCOK")
 
         return eyeopen

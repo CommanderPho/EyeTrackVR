@@ -1,0 +1,1 @@
+ETVR_SteamVR_Calibration_Overlay.exe center

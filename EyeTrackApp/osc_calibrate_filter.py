@@ -35,6 +35,7 @@ import threading
 import os
 import subprocess
 import math
+from utils.calibration_3d import receive_calibration_data, converge_3d
 
 
 class TimeoutError(RuntimeError):
@@ -108,6 +109,10 @@ class var:
     single_eye = True
     left_enb = 0
     right_enb = 0
+    eye_wait = 10
+    left_calib = False
+    right_calib = False
+    completed_3d_calib = 0
 
 
 @Async
@@ -116,7 +121,7 @@ def center_overlay_calibrate(self):
     if var.overlay_active != True:
 
         dirname = os.getcwd()
-        overlay_path = os.path.join(dirname, "center.bat")
+        overlay_path = os.path.join(dirname, "Tools/center.bat")
         os.startfile(overlay_path)
         var.overlay_active = True
         sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -152,84 +157,22 @@ def overlay_calibrate_3d(self):
                 received_int = struct.unpack("!l", data)[0]
                 message = received_int
                 self.settings.gui_recenter_eyes = False
-                self.grab_3d_point = True
+                self.settings.grab_3d_point = True
 
                 print(message)
+                if message == 9:
+                    var.overlay_active = False
+
     except:
         print("[WARN] Calibration overlay error. Make sure SteamVR is Running.")
         self.settings.gui_recenter_eyes = False
         var.overlay_active = False
 
 
-def calculate_real_angle(angle, ipd):
-    return math.degrees(math.atan(math.tan(math.radians(angle)) * (ipd / 2)))
-
-
-def calibrate_tracked_data(tracked_data, calibrated_data, ipd):
-
-    for point in tracked_data:
-        x, y, angle = point
-
-        # Find the nearest calibration point
-        min_distance_point = min(calibration_points, key=lambda p: math.dist((x, y), (p[0], p[1])))
-        cal_x, cal_y, _ = min_distance_point
-
-        # Calculate the real angle for each eye
-        left_eye_angle = calculate_real_angle(angle, ipd / 2)
-        right_eye_angle = calculate_real_angle(angle, -ipd / 2)
-
-        # Adjust the tracked data using calibration information
-        calibrated_x = x + (cal_x - x)
-        calibrated_y = y + (cal_y - y)
-        calibrated_angle = angle + (cal_x - x) * math.tan(math.radians(left_eye_angle))
-
-        calibrated_data.append((calibrated_x, calibrated_y, calibrated_angle))
-
-    return calibrated_data
-
-
-def rotate_around_y(point, angle):
-    """
-    Rotate a 3D point around the y-axis by a given angle.
-    """
-    rotation_matrix = np.array(
-        [[math.cos(angle), 0, -math.sin(angle)], [0, 1, 0], [math.sin(angle), 0, math.cos(angle)]]
-    )
-    rotated_point = np.dot(rotation_matrix, point)
-    return rotated_point
-
-
-def calculate_rotation_angles(target_point, ipd, eye="left"):
-    """
-    Calculate yaw and pitch angles to converge left or right eye at the target point.
-    """
-    if eye == "left":
-        x = target_point[0] - ipd
-    else:
-        x = target_point[0] + ipd
-    y = target_point[1]
-    z = target_point[2]
-    if x == 0:
-        yaw = 90.0  # Assign a specific value when b is zero
-    else:
-        yaw = math.degrees(math.atan2(z, x))
-    if y == 0:
-        pitch = 0
-    else:
-        pitch = math.degrees(math.atan2(x, y))
-    #   print(yaw, pitch)
-
-    return yaw, pitch
-
-
 class cal:
     def cal_osc(self, cx, cy, angle):
-        # Example usage for the left eye
-        # Example usage for the center point
-        target_point_center = [0.8, 0.8, 1]  # x y z
-        ipd = 0.058  # Interpupillary Distance in meters
 
-        calculate_rotation_angles(target_point_center, ipd, eye="left")
+        # print(self.eye_id)
 
         if cx == None or cy == None:
             return 0, 0
@@ -241,18 +184,49 @@ class cal:
             flipx = self.settings.gui_flip_x_axis_right
         else:
             flipx = self.settings.gui_flip_x_axis_left
-        if self.calibration_3d_frame_counter == -621:
+        if self.calibration_3d_frame_counter == -621:  # or self.settings.gui_3d_calibration:
+
             self.calibration_3d_frame_counter = self.calibration_3d_frame_counter - 1
             overlay_calibrate_3d(self)
-            print("yippe")
+            self.config.calibration_points_3d = []
 
-        if self.grab_3d_point:
-            self.grab_3d_point = False
+        #  print(self.eye_id, cx, cy)
+        # self.settings.gui_3d_calibration = False
 
-            self.config.calibration_points.append((cx, cy, angle))
-            # print(self.config.calibration_points)
+        if self.settings.grab_3d_point:
+            # Check if both calibrations are done
+            if var.left_calib and var.right_calib:
+                self.settings.grab_3d_point = False
+                var.left_calib = False
+                var.right_calib = False
+                print("end", len(self.config.calibration_points_3d), self.config.calibration_points_3d)
 
-        #  print("calib")
+            else:
+                # Check if it's the left eye and left calibration is not done yet
+                if self.eye_id == EyeId.LEFT and not var.left_calib:
+                    var.left_calib = True
+                    self.config.calibration_points_3d.append((cx, cy, 1))
+                # Check if it's the right eye and right calibration is not done yet
+                elif self.eye_id == EyeId.RIGHT and not var.right_calib:
+                    var.right_calib = True
+                    self.config.calibration_points_3d.append((cx, cy, 0))
+
+        if self.eye_id == EyeId.LEFT and len(self.config.calibration_points_3d) == 9 and var.left_calib == False:
+            var.left_calib = True
+            receive_calibration_data(self.config.calibration_points_3d, self.eye_id)
+            print("SENT LEFT EYE POINTS")
+            var.completed_3d_calib += 1
+
+        if self.eye_id == EyeId.RIGHT and len(self.config.calibration_points_3d) == 9 and var.right_calib == False:
+            var.right_calib = True
+            receive_calibration_data(self.config.calibration_points_3d, self.eye_id)
+            print("SENT RIGHT EYE POINTS")
+            var.completed_3d_calib += 1
+        # print(len(self.config.calibration_points), self.eye_id)
+
+        if var.completed_3d_calib >= 2:
+            converge_3d()
+        # pass
 
         if self.calibration_frame_counter == 0:
             self.calibration_frame_counter = None

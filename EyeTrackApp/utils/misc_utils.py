@@ -1,18 +1,26 @@
 import os
-from pathlib import Path
 import typing
 import sys
 
+from pathlib import Path
+from typing import Union
+
 is_nt = True if os.name == "nt" else False
 
-def PlaySound(*args, **kwargs): pass
+
+def PlaySound(*args, **kwargs):
+    pass
+
+
 SND_FILENAME = SND_ASYNC = 1
 
 if is_nt:
     import winsound
+
     PlaySound = winsound.PlaySound
     SND_FILENAME = winsound.SND_FILENAME
     SND_ASYNC = winsound.SND_ASYNC
+
 
 def clamp(x, low, high):
     return max(low, min(x, high))
@@ -40,7 +48,7 @@ class FastMedian:
         self.more, self.__median = None, None
         if inits is not None:
             [self + x for x in inits]
-    
+
     # When full, push the median of current values to next list, then reset.
     def __add__(self, x):
         self.__median = None
@@ -50,27 +58,28 @@ class FastMedian:
             self.more + self.__medianPrim(self.all)
             # It's going to be slower because of the re-allocation.
             self.all = []  # reset
-    
+
     #  If there is a next list, ask its median. Else, work it out locally.
     def median(self):
         return self.more.median() if self.more else self.__medianPrim(self.all)
-    
+
     # Only recompute median if we do not know it already.
     def __medianPrim(self, all):
         if self.__median is None:
             self.__median = lst_median(all, ordered=False)
         return self.__median
 
-def resource_path(relative_path):
-    """ Get absolute path to resource, works for dev and for PyInstaller """
+def resource_path(relative_path: Union[str, Path]) -> str:
+    """
+    Get absolute path to resource, works for dev and for PyInstaller
+    """
     try:
         # PyInstaller creates a temp folder and stores path in _MEIPASS
-        base_path = sys._MEIPASS
+        base_path = Path(sys._MEIPASS)
     except AttributeError:
-        base_path = os.path.abspath(".")
-
-    return os.path.join(base_path, relative_path)
-
+        base_path = Path(".")
+	
+	return str(base_path / relative_path)
 
 
 def resource_user_configs_folder(*other):
@@ -88,16 +97,4 @@ def resource_user_configs_folder(*other):
         return user_configs_folder
     else:
         return user_configs_folder.joinpath(*other).resolve()
-        
-
-
-# def resource_user_data_folder(*other):
-#     """ Get absolute path to the user configs folder, or if *other is provided it will build the proper url for any files that are its contents. """
-#     user_configs_folder = Path(resource_path("../user_configs")).resolve()
-#     assert user_configs_folder is not None
-#     assert user_configs_folder.exists(), f"user_configs_folder: {user_configs_folder}"
-#     # print(f'user_configs_folder: {user_configs_folder}')
-#     if len(other) == 0:
-#         return user_configs_folder
-#     else:
-#         return user_configs_folder.joinpath(*other).resolve()
+    return str(base_path / relative_path)

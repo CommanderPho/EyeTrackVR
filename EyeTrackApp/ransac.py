@@ -28,7 +28,7 @@ LICENSE: Summer Software Distribution License 1.0
 """
 import cv2
 import numpy as np
-from enum import IntEnum
+from eye import EyeId
 from utils.img_utils import safe_crop
 from utils.misc_utils import clamp
 import os
@@ -44,13 +44,6 @@ except AttributeError:
 else:
     process.nice(psutil.BELOW_NORMAL_PRIORITY_CLASS)  # Windows
     process.nice()
-
-
-class EyeId(IntEnum):
-    RIGHT = 0
-    LEFT = 1
-    BOTH = 2
-    SETTINGS = 3
 
 
 def ellipse_model(data, y, f):
@@ -70,7 +63,7 @@ def ellipse_model(data, y, f):
 def fit_rotated_ellipse_ransac(
     data: np.ndarray,
     rng: np.random.Generator,
-    iter=100,
+    iter=45,
     sample_num=10,
     offset=80,  # 80.0, 10, 80
 ):  # before changing these values, please read up on the ransac algorithm
@@ -175,7 +168,7 @@ def fit_rotated_ellipse(data, P):
     w, h = wh[0], wh[1]
 
     error_sum = np.sum(data)
-    # print("fitting error = %.3f" % (error_sum))
+   # print("fitting error = %.3f" % (error_sum))
 
     return (cx, cy, w, h, theta)
 
@@ -213,7 +206,7 @@ cct = 300
 def RANSAC3D(self, hsrac_en):
     f = False
     ranf = False
-    blink = 0.7
+    blink = 0.8
     angle = 0
 
     if hsrac_en:
@@ -267,7 +260,7 @@ def RANSAC3D(self, hsrac_en):
         self.failed = self.failed + 1  # we have failed, move onto next algo
         return 0, 0, 0, frame, blink, 0, 0
     else:
-        frame_gray = cv2.GaussianBlur(frame, (5, 5), 0)
+        frame_gray = cv2.GaussianBlur(frame, (9, 9), 10)
 
     # this will need to be adjusted everytime hardware is changed (brightness of IR, Camera postion, etc)m
     min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(frame_gray)

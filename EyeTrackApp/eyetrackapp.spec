@@ -4,14 +4,14 @@ import sys ; sys.setrecursionlimit(sys.getrecursionlimit() * 5)
 
 block_cipher = None
 
-resources=[("Audio/*", "Audio"), ("Images/*", "Images/"), ("Tools/*", "Tools/"), ("pye3d/refraction_models/*", "pye3d/refraction_models/"), ("Models/*", "Models/")]
+resources=[("Audio/*", "Audio"), ("Images/*", "Images/"), ("pye3d/refraction_models/*", "pye3d/refraction_models/"), ("Models/*", "Models/"),("Tools/*", "Tools/")]
 
 a = Analysis(
 ['eyetrackapp.py'],
 pathex=[],
 binaries=[],
 datas=resources,
-hiddenimports=['cv2', 'numpy', 'PySimpleGui'],
+hiddenimports=['cv2', 'numpy', 'PySimpleGui', 'pkg_resources.extern'],
 hookspath=[],
 hooksconfig={},
 runtime_hooks=[],
@@ -43,5 +43,5 @@ exe = EXE(
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
-    icon="Images/logo.ico",
+    icon="Images/logo.ico", 
 )
