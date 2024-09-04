@@ -73,3 +73,20 @@ All documentation, including the [Wiki](https://github.com/RedHawk989/EyeTrackVR
 </div> -->
 
 [Top](#eyetrackvr)
+
+
+
+ffmpeg -i http://10.0.0.120 -f mjpeg -c:v copy -listen 1 http://localhost:8080/
+
+
+ffmpeg -i http://10.0.0.120 -f mjpeg -c:v copy -listen 1 http://localhost:8080/phoeyeleft
+
+
+gst-launch-1.0 souphttpsrc location=http://10.0.0.120 is-live=true ! jpegdec ! jpegenc ! multipartmux ! tcpserversink host=127.0.0.1 port=8080
+
+
+gst-launch-1.0 souphttpsrc location=http://10.0.0.120 is-live=true ! queue ! jpegdec ! queue ! jpegenc ! queue ! multipartmux ! queue ! tcpserversink host=127.0.0.1 port=8080
+
+<!-- gst-launch-1.0 souphttpsrc location=http://10.0.0.120 is-live=true ! queue ! nvjpegdec ! queue ! nvjpegenc ! queue ! multipartmux ! queue ! tcpserversink host=127.0.0.1 port=8080 -->
+
+gst-launch-1.0 souphttpsrc location=http://10.0.0.120 is-live=true ! queue ! nvjpegdec ! queue ! jpegenc ! queue ! multipartmux ! queue ! tcpserversink host=127.0.0.1 port=8080
