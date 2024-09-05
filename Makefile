@@ -1,7 +1,7 @@
 .DEFAULT_GOAL := run
 
 install:
-	poetry install
+	poetry install --no-root
 
 run:
 	cd EyeTrackApp/ && poetry run python eyetrackapp.py
