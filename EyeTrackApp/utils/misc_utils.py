@@ -78,5 +78,23 @@ def resource_path(relative_path: Union[str, Path]) -> str:
         base_path = Path(sys._MEIPASS)
     except AttributeError:
         base_path = Path(".")
+	
+	return str(base_path / relative_path)
 
+
+def resource_user_configs_folder(*other):
+    """ Get absolute path to the user configs folder, or if *other is provided it will build the proper url for any files that are its contents.
+    
+    Usage:
+    from utils.misc_utils import resource_user_configs_folder
+    
+     """
+    user_configs_folder = Path(resource_path("../user_configs")).resolve()
+    assert user_configs_folder is not None
+    assert user_configs_folder.exists(), f"user_configs_folder: {user_configs_folder}"
+    # print(f'user_configs_folder: {user_configs_folder}')
+    if len(other) == 0:
+        return user_configs_folder
+    else:
+        return user_configs_folder.joinpath(*other).resolve()
     return str(base_path / relative_path)

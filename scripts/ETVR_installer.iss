@@ -20,11 +20,11 @@ AppSupportURL={#MyAppURL}
 AppUpdatesURL={#MyAppURL}
 DefaultDirName={autopf}\{#MyAppName}
 DisableProgramGroupPage=yes
-OutputDir=C:\Users\Prohurtz\Desktop\Output\
+OutputDir=C:\Users\pho\Desktop\Output\
 ; Uncomment the following line to run in non administrative install mode (install for current user only.)
 ;PrivilegesRequired=lowest
 OutputBaseFilename=EyeTrackVR-Setup
-SetupIconFile=C:\Users\Prohurtz\PycharmProjects\EyeTrackVR\EyeTrackApp\Images\logo.ico
+SetupIconFile=C:\Users\pho\repos\ExternalTesting\EyeTrackVR\EyeTrackApp\Images\logo.ico
 Compression=lzma/ultra64
 
 SolidCompression=yes
@@ -37,8 +37,8 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}";
 
 [Files]
-Source: "C:\Users\Prohurtz\PycharmProjects\EyeTrackVR\EyeTrackApp\dist\{#MyAppExeName}"; DestDir: "{app}"; Flags: ignoreversion
-Source: "C:\Users\Prohurtz\PycharmProjects\EyeTrackVR\EyeTrackApp\dist\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "C:\Users\pho\repos\ExternalTesting\EyeTrackVR\dist\EyeTrackApp\{#MyAppExeName}"; DestDir: "{app}"; Flags: ignoreversion
+Source: "C:\Users\pho\repos\ExternalTesting\EyeTrackVR\dist\EyeTrackApp\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Dirs]

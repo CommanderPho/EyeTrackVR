@@ -16,3 +16,13 @@ EyeTrackApp/IBO_RIGHT.png
 
 EyeTrackApp/IBO_LEFT.png
 EyeTrackApp/IBO_RIGHT.png
+**/desktop.ini
+FM-{0EC49B04-AC9A-42B4-9433-3F0D06A844A6}.ico
+**/video_saving/*.avi
+EyeTrackApp/video_saving/*.mp4
+EyeTrackVR_proj/.idea
+user_data/video/*.mp4
+user_data/video/*.avi
+user_configs/EBPD_LEFT.png
+user_configs/EBPD_RIGHT.png
+user_configs/IBO_RIGHT.png

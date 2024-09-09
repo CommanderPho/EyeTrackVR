@@ -223,7 +223,14 @@ class EyeTrackConfig(BaseModel):
     __listeners = []
 
     @staticmethod
-    def load():
+    def load(overwriting_config_path=None):
+        global CONFIG_FILE_NAME
+        if overwriting_config_path is not None:
+            ## update CONFIG_FILE_NAME
+            print(f'using overwriting_config_path: "{overwriting_config_path}"')
+            CONFIG_FILE_NAME = overwriting_config_path
+            # BACKUP_CONFIG_FILE_NAME = overwriting_config_path.parent().joinpath("eyetrack_settings.backup")
+
         if not os.path.exists(CONFIG_FILE_NAME):
             print("No settings file, using base settings")
             return EyeTrackConfig()
@@ -304,8 +311,16 @@ class EyeTrackConfig(BaseModel):
         if save:
             self.save()
 
-    def save(self):
+    def save(self, overwriting_config_path=None, indent=4):
         # make sure this is only called if there is a change
+        global CONFIG_FILE_NAME
+        
+        print(f'EyeTrackConfig.save(): CONFIG_FILE_NAME: "{CONFIG_FILE_NAME}"')
+        if overwriting_config_path is not None:
+            ## update CONFIG_FILE_NAME
+            print(f'\tusing overwriting_config_path: "{overwriting_config_path}"')
+            CONFIG_FILE_NAME = overwriting_config_path
+        
         if os.path.exists(CONFIG_FILE_NAME):
             try:
                 # Verify existing configuration files.
@@ -317,7 +332,7 @@ class EyeTrackConfig(BaseModel):
                 # No backup because the saved settings file is broken.
                 pass
         with open(CONFIG_FILE_NAME, "w") as settings_file:
-            json.dump(obj=self.model_dump(warnings=False), fp=settings_file)
+            json.dump(obj=self.model_dump(warnings=False), fp=settings_file, indent=indent)
         print(f"\033[92m[INFO] Config Saved Successfully\033[0m")
 
     def register_listener_callback(self, callback):
