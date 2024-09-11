@@ -33,7 +33,7 @@ import os
 import cv2
 from eye import EyeId
 from one_euro_filter import OneEuroFilter
-from utils.misc_utils import resource_user_configs_folder
+from utils.misc_utils import UserDataFolders
 from utils.img_utils import safe_crop
 import psutil
 import sys
@@ -122,11 +122,11 @@ class IntensityBasedOpeness:
     def __init__(self, eye_id):
         # todo: It is necessary to consider whether the filename can be changed in the configuration file, etc.
         if eye_id in [EyeId.LEFT]:
-            self.imgfile = resource_user_configs_folder("IBO_LEFT.png").resolve().as_posix()
+            self.imgfile = UserDataFolders.resource_user_configs_folder("IBO_LEFT.png").resolve().as_posix()
         else:
             pass
         if eye_id in [EyeId.RIGHT]:
-            self.imgfile = resource_user_configs_folder("IBO_RIGHT.png").resolve().as_posix()
+            self.imgfile = UserDataFolders.resource_user_configs_folder("IBO_RIGHT.png").resolve().as_posix()
         else:
             pass
         # self.imgfile = "IBO_LEFT.png" if eyeside is EyeLR.LEFT else "IBO_RIGHT.png"

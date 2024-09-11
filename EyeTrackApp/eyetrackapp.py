@@ -45,7 +45,7 @@ import cv2
 import numpy as np
 import uuid
 
-from utils.misc_utils import resource_user_configs_folder
+from utils.misc_utils import UserDataFolders
 
 if is_nt:
     from winotify import Notification
@@ -463,7 +463,9 @@ if __name__ == "__main__":
     # parser.add_argument('input_path', help='Path to input data file')
     # parser.add_argument('h5_path', help='Path to output HDF5 file')
     # parser.add_argument('-config_path', '--config-path', default="../user_configs/eyetrack_settings.json", help='Path to the config file')
-    parser.add_argument('-config_path', '--config-path', default=resource_user_configs_folder("eyetrack_settings.json").as_posix(), help='Path to the config file')
+    parser.add_argument('-config_path', '--config-path', default=UserDataFolders.resource_user_configs_folder("eyetrack_settings.json").as_posix(), help='Path to the config file')
+    
+    # root_user_data = Path(r'C:\Users\pho\repos\ExternalTesting\EyeTrackVR\user_data').resolve()
     
     args = parser.parse_args()
 

@@ -82,19 +82,56 @@ def resource_path(relative_path: Union[str, Path]) -> str:
     return str(base_path / relative_path)
 
 
-def resource_user_configs_folder(*other):
-    """ Get absolute path to the user configs folder, or if *other is provided it will build the proper url for any files that are its contents.
+
+class UserDataFolders:
+    """ Provides consistent path to the user's data directory
     
-    Usage:
-    from utils.misc_utils import resource_user_configs_folder
+    from utils.misc_utils import UserDataFolders
     
-     """
-    user_configs_folder = Path(resource_path("../user_configs")).resolve()
-    assert user_configs_folder is not None
-    assert user_configs_folder.exists(), f"user_configs_folder: {user_configs_folder}"
-    # print(f'user_configs_folder: {user_configs_folder}')
-    if len(other) == 0:
-        return user_configs_folder
-    else:
-        return user_configs_folder.joinpath(*other).resolve()
-    return str(base_path / relative_path)
+    """
+    @classmethod
+    def resource_user_data_folder(cls, *other):
+        """ Get absolute path to the user configs folder, or if *other is provided it will build the proper url for any files that are its contents.
+        
+        Usage:
+        from utils.misc_utils import UserDataFolders
+        
+        user_data_folder: Path = UserDataFolders.resource_user_data_folder()
+        
+        """
+        user_data_folder = Path(resource_path("user_data")).resolve()
+        if ((not user_data_folder.exists()) or (not user_data_folder.is_dir())):
+            user_data_folder = Path(resource_path("../user_data")).resolve() # look up a directory
+        assert user_data_folder is not None
+        assert user_data_folder.exists(), f"user_data: {user_data_folder}"
+        # print(f'user_configs_folder: {user_configs_folder}')
+        if len(other) == 0:
+            return user_data_folder
+        else:
+            return user_data_folder.joinpath(*other).resolve()
+        # return str(base_path / relative_path)
+
+
+
+    @classmethod
+    def resource_user_configs_folder(cls, *other):
+        """ Get absolute path to the user configs folder, or if *other is provided it will build the proper url for any files that are its contents.
+        
+        Usage:
+        from utils.misc_utils import UserDataFolders
+        
+        user_configs_folder: Path = UserDataFolders.resource_user_configs_folder()
+        
+        
+        """
+        user_data_folder = cls.resource_user_data_folder().resolve()
+        assert user_data_folder.exists(), f"user_data_folder: {user_data_folder} does not exist"
+        user_configs_folder = user_data_folder.joinpath('user_configs').resolve()
+        assert user_configs_folder is not None
+        assert user_configs_folder.exists(), f"user_configs_folder: {user_configs_folder} does not exist"
+        # print(f'user_configs_folder: {user_configs_folder}')
+        if len(other) == 0:
+            return user_configs_folder
+        else:
+            return user_configs_folder.joinpath(*other).resolve()
+        # return str(base_path / relative_path)

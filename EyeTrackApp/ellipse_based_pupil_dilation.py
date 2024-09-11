@@ -34,7 +34,7 @@ import cv2
 
 from eye import EyeId
 from one_euro_filter import OneEuroFilter
-from utils.misc_utils import resource_user_configs_folder
+from utils.misc_utils import UserDataFolders
 
 os.environ["OMP_NUM_THREADS"] = "1"
 
@@ -101,11 +101,11 @@ class EllipseBasedPupilDilation:
     def __init__(self, eye_id):
         # todo: It is necessary to consider whether the filename can be changed in the configuration file, etc.
         if eye_id in [EyeId.LEFT]:
-            self.imgfile = resource_user_configs_folder("EBPD_LEFT.png").as_posix()
+            self.imgfile = UserDataFolders.resource_user_configs_folder("EBPD_LEFT.png").as_posix()
         else:
             pass
         if eye_id in [EyeId.RIGHT]:
-            self.imgfile = resource_user_configs_folder("EBPD_RIGHT.png").as_posix()
+            self.imgfile = UserDataFolders.resource_user_configs_folder("EBPD_RIGHT.png").as_posix()
         else:
             pass
         # self.data[0, -1] = maxval, [1, -1] = rotation, [2, -1] = x, [3, -1] = y
