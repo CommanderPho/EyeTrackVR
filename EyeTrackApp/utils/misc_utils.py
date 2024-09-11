@@ -78,8 +78,8 @@ def resource_path(relative_path: Union[str, Path]) -> str:
         base_path = Path(sys._MEIPASS)
     except AttributeError:
         base_path = Path(".")
-	
-	return str(base_path / relative_path)
+    
+    return str(base_path / relative_path)
 
 
 def resource_user_configs_folder(*other):

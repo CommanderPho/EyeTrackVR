@@ -1,6 +1,7 @@
 {
     "version": 1,
     "right_eye": {
+        "gui_rotation_ui_padding": true,
         "rotation_angle": 17,
         "roi_window_x": 71,
         "roi_window_y": 47,
@@ -14,9 +15,11 @@
         "calib_YMIN": 62.0,
         "calib_XOFF": 138.0,
         "calib_YOFF": 93.0,
-        "calibration_points": []
+        "calibration_points": [],
+        "calibration_points_3d": []
     },
     "left_eye": {
+        "gui_rotation_ui_padding": true,
         "rotation_angle": 0,
         "roi_window_x": 0,
         "roi_window_y": 0,
@@ -30,7 +33,8 @@
         "calib_YMIN": null,
         "calib_XOFF": null,
         "calib_YOFF": null,
-        "calibration_points": []
+        "calibration_points": [],
+        "calibration_points_3d": []
     },
     "settings": {
         "gui_flip_x_axis_left": false,
@@ -58,7 +62,9 @@
         "gui_blob_maxsize": 25.0,
         "gui_blob_minsize": 10.0,
         "gui_recenter_eyes": false,
-        "tracker_single_eye": 2,
+        "gui_3d_calibration": false,
+        "grab_3d_point": false,
+        "tracker_single_eye": 1,
         "gui_threshold": 65,
         "gui_AHSFRACP": 1,
         "gui_AHSFP": 2,
@@ -77,15 +83,17 @@
         "gui_circular_crop_left": false,
         "ibo_filter_samples": 400,
         "ibo_average_output_samples": 0,
-        "ibo_fully_close_eye_threshold": 0.3,
+        "ibo_fully_close_eye_threshold": "0.3",
         "calibration_samples": 600,
         "osc_right_eye_close_address": "/avatar/parameters/RightEyeLidExpandedSqueeze",
         "osc_left_eye_close_address": "/avatar/parameters/LeftEyeLidExpandedSqueeze",
         "osc_left_eye_x_address": "/avatar/parameters/LeftEyeX",
         "osc_right_eye_x_address": "/avatar/parameters/RightEyeX",
         "osc_eyes_y_address": "/avatar/parameters/EyesY",
+        "osc_eyes_pupil_dilation_address": "/avatar/parameters/EyesDilation",
         "osc_invert_eye_close": false,
         "gui_RANSACBLINK": false,
+        "gui_disable_gui": false,
         "gui_right_eye_dominant": false,
         "gui_left_eye_dominant": false,
         "gui_outer_side_falloff": false,
@@ -97,7 +105,24 @@
         "gui_osc_vrcft_v1": false,
         "gui_osc_vrcft_v2": false,
         "gui_vrc_native": true,
-        "gui_pupil_dilation": true
+        "gui_pupil_dilation": true,
+        "gui_VRCFTModulePort": 8889,
+        "gui_VRCFTModuleIPAddress": "127.0.0.1",
+        "gui_ShouldEmulateEyeWiden": false,
+        "gui_ShouldEmulateEyeSquint": false,
+        "gui_ShouldEmulateEyebrows": false,
+        "gui_WidenThresholdV1_min": 0.6,
+        "gui_WidenThresholdV1_max": 1,
+        "gui_WidenThresholdV2_min": 0.6,
+        "gui_WidenThresholdV2_max": 1.05,
+        "gui_SqueezeThresholdV1_min": 0.07,
+        "gui_SqueezeThresholdV1_max": 0.5,
+        "gui_SqueezeThresholdV2_min": 0.07,
+        "gui_SqueezeThresholdV2_max": -1,
+        "gui_EyebrowThresholdRising": 0.8,
+        "gui_EyebrowThresholdLowering": 0.15,
+        "gui_OutputMultiplier": 1,
+        "gui_use_module": false
     },
-    "eye_display_id": 3
+    "eye_display_id": 1
 }
