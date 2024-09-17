@@ -28,6 +28,7 @@ pytest-cov = "^4.1.0"
 ipykernel = "^6.29.5"
 ipython = "^8.26.0"
 pip = "^24.2"
+pythreejs = "^2.4.2"
 [tool.poetry.group.dev.dependencies]
 black = "^22.10.0"
 pyinstaller = "^5.6.2"

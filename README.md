@@ -90,3 +90,15 @@ gst-launch-1.0 souphttpsrc location=http://10.0.0.120 is-live=true ! queue ! jpe
 <!-- gst-launch-1.0 souphttpsrc location=http://10.0.0.120 is-live=true ! queue ! nvjpegdec ! queue ! nvjpegenc ! queue ! multipartmux ! queue ! tcpserversink host=127.0.0.1 port=8080 -->
 
 gst-launch-1.0 souphttpsrc location=http://10.0.0.120 is-live=true ! queue ! nvjpegdec ! queue ! jpegenc ! queue ! multipartmux ! queue ! tcpserversink host=127.0.0.1 port=8080
+
+
+.\dist\eyetrackapp.exe --config-path "C:\Users\pho\repos\ExternalTesting\EyeTrackVR\user_data\eyetrack_settings.json"
+
+
+## This works:
+python eyetrackapp.py --config-path "C:\Users\pho\repos\ExternalTesting\EyeTrackVR\user_data\eyetrack_settings.json"
+
+
+python eyetrackapp.py --config-path "L:\repos\ExternalTesting\EyeTrackVR\user_data"
+
+'L:\\repos\\ExternalTesting\\EyeTrackVR\\user_data'
