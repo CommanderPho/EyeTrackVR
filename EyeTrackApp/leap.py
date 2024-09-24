@@ -1,5 +1,4 @@
 import os
-os.environ["OMP_NUM_THREADS"] = "1"
 import onnxruntime
 import numpy as np
 import cv2
@@ -8,10 +7,11 @@ import math
 from queue import Queue
 import threading
 from one_euro_filter import OneEuroFilter
-import psutil, os
-import sys
+import psutil
 from utils.misc_utils import resource_path
 from pathlib import Path
+
+os.environ["OMP_NUM_THREADS"] = "1"
 
 frames = 0
 models = Path("Models")
@@ -26,7 +26,6 @@ def run_model(input_queue, output_queue, session):
         img_np = np.array(frame, dtype=np.float32) / 255.0
         gray_img = 0.299 * img_np[:, :, 0] + 0.587 * img_np[:, :, 1] + 0.114 * img_np[:, :, 2]
 
-        # Add the channel and batch dimensions
         gray_img = np.expand_dims(np.expand_dims(gray_img, axis=0), axis=0)
 
         ort_inputs = {session.get_inputs()[0].name: gray_img}
@@ -42,36 +41,29 @@ def run_onnx_model(queues, session, frame):
             break
 
 
-def to_numpy(tensor):
-    return tensor.detach().cpu().numpy() if tensor.requires_grad else tensor.cpu().numpy()
-
-
 class LEAP_C:
     def __init__(self):
         self.last_lid = None
         self.current_image_gray = None
         self.current_image_gray_clean = None
         onnxruntime.disable_telemetry_events()
-        self.num_threads = 2
+        self.num_threads = 1
         self.queue_max_size = 1
         self.model_path = resource_path(models / "pfld-sim.onnx")
 
         self.print_fps = False
         self.frames = 0
-        self.queues = []
+        self.queues = [Queue(maxsize=self.queue_max_size) for _ in range(self.num_threads)]
         self.threads = []
         self.model_output = np.zeros((12, 2))
         self.output_queue = Queue(maxsize=self.queue_max_size)
         self.start_time = time.time()
 
-        for _ in range(self.num_threads):
-            queue = Queue(maxsize=self.queue_max_size)
-            self.queues.append(queue)
-
         opts = onnxruntime.SessionOptions()
         opts.inter_op_num_threads = 1
-        opts.intra_op_num_threads = 1  # fps hit
+        opts.intra_op_num_threads = 1
         opts.graph_optimization_level = onnxruntime.GraphOptimizationLevel.ORT_ENABLE_ALL
+        opts.enable_mem_pattern = False
 
         self.one_euro_filter_float = OneEuroFilter(np.random.rand(1, 2), min_cutoff=0.0004, beta=0.9)
         self.dmax = 0
@@ -129,13 +121,6 @@ class LEAP_C:
 
             if len(self.openlist) < 2500:
                 self.openlist.append(d)
-            else:
-                pass
-          #      print("full")
-
-            #print(len(self.openlist))
-            # self.openlist.pop(0)
-            # self.openlist.append(d)
 
             try:
                 if len(self.openlist) > 0:
