@@ -47,6 +47,8 @@ import uuid
 
 from utils.misc_utils import UserDataFolders
 
+UserDataFolders.create_user_data_folder_if_needed()
+
 if is_nt:
     from winotify import Notification
 os.system("color")  # init ANSI color

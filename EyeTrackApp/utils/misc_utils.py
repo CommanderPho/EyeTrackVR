@@ -1,11 +1,11 @@
 import os
 import typing
 import sys
-
+import shutil
 from pathlib import Path
 from typing import Union
 
-is_nt = True if os.name == "nt" else False
+is_nt: bool = True if os.name == "nt" else False
 
 
 def PlaySound(*args, **kwargs):
@@ -82,13 +82,42 @@ def resource_path(relative_path: Union[str, Path]) -> str:
     return str(base_path / relative_path)
 
 
-
 class UserDataFolders:
     """ Provides consistent path to the user's data directory
     
     from utils.misc_utils import UserDataFolders
     
     """
+    @classmethod
+    def create_user_data_folder_if_needed(cls):
+        # Determine the user's default directory
+        if sys.platform == "win32":
+            user_dir = os.environ.get('USERPROFILE', '')
+        else:
+            user_dir = os.environ.get('HOME', '')
+
+        user_data_path = os.path.join(user_dir, 'EyeTrackVR', 'user_data')
+
+        # Check if the user_data folder already exists
+        if not os.path.exists(user_data_path):
+            print(f'user_data_path: "{user_data_path}" does not exist. Creating from packaged configs...')
+            # Get the path to the packaged user_data folder
+            if getattr(sys, 'frozen', False):
+                # If the application is frozen (packaged)
+                app_dir = sys._MEIPASS
+            else:
+                # If the application is run directly
+                app_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__))) # EyeTrackApp
+
+            packaged_user_data = os.path.join(app_dir, '../user_data')
+
+            # Copy the user_data folder to the user's default directory
+            shutil.copytree(packaged_user_data, user_data_path)
+            return True
+        else:
+            ## already exists
+            return False
+
     @classmethod
     def resource_user_data_folder(cls, *other):
         """ Get absolute path to the user configs folder, or if *other is provided it will build the proper url for any files that are its contents.
