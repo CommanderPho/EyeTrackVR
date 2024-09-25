@@ -1,10 +1,21 @@
 # -*- mode: python ; coding: utf-8 -*-
 
 import sys ; sys.setrecursionlimit(sys.getrecursionlimit() * 5)
+import os
+from PyInstaller.utils.hooks import Tree
 
 block_cipher = None
 
-resources=[("Audio/*", "Audio"), ("Images/*", "Images/"), ("pye3d/refraction_models/*", "pye3d/refraction_models/"), ("Models/*", "Models/"),("Tools/*", "Tools/")]
+# Get the directory where the spec file is located
+spec_dir = os.path.dirname(os.path.abspath(__file__))
+
+# Build the path to the user_data folder
+user_data_source = os.path.abspath(os.path.join(spec_dir, '../user_data'))
+
+resources=[("Audio/*", "Audio"), ("Images/*", "Images/"), ("pye3d/refraction_models/*", "pye3d/refraction_models/"), ("Models/*", "Models/"),("Tools/*", "Tools/"), 
+#("user_data/*", "user_data/"),  # Include the user_data folder
+Tree(user_data_source, dest="user_data"),  # Include the user_data folder
+]
 
 a = Analysis(
 ['eyetrackapp.py'],
